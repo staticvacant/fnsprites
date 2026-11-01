@@ -20,66 +20,10 @@ export const KEYS = {
     season: 'fn_state_season',
 };
 
-<<<<<<< HEAD
-=======
-export const THEME_ORDER = [
-    'Básico',
-    'Dourado',
-    'Doce',
-    'Galáctico',
-    'Gema',
-    'Metálico',
-    'Cubo',
-    'Rift',
-    'Pato',
-    'Trapaceiro',
-    'Trapaça',
-    'Hacker de Saque',
-    'Hacker',
-    'Caçador de Recompensas',
-    'Doce ou Travessura',
-    'Valioso',
-    'Amaldiçoado',
-];
-
-export const RARITY_ORDER = ['Mítico', 'Lendário', 'Épico', 'Raro', 'Especial'];
-
->>>>>>> origin/main
 export const STATUS_FILTERS = ['all', 'owned', 'missing'];
 
 export const SORT_METHODS = ['theme', 'sprite', 'name', 'rarity'];
 
-<<<<<<< HEAD
-=======
-export const UI_THEME_LABELS = { Doce: 'Doce' };
-
-export const EXPORT_THEME_LABELS = {
-    Básico: 'NORMAL',
-    Doce: 'DOCE',
-    Trapaceiro: 'TRAPACEIRO',
-    Trapaça: 'TRAPAÇA',
-    'Hacker de Saque': 'HACKER',
-    Hacker: 'HACKER',
-    'Caçador de Recompensas': 'CAÇADOR',
-    'Doce ou Travessura': 'DOCE OU TRAVESSURA',
-    Valioso: 'VALIOSO',
-    Amaldiçoado: 'AMALDIÇOADO',
-};
-
-export const TRADE_THEME_LABELS = {
-    Básico: 'Base',
-    Doce: 'Doce',
-    Trapaceiro: 'Trapaceiro',
-    Trapaça: 'Trapaça',
-    'Hacker de Saque': 'Hacker de Saque',
-    Hacker: 'Hacker',
-    'Caçador de Recompensas': 'Caçador de Recompensas',
-    'Doce ou Travessura': 'Doce ou Travessura',
-    Valioso: 'Valioso',
-    Amaldiçoado: 'Amaldiçoado',
-};
-
->>>>>>> origin/main
 export const TRACKER_URL = 'https://joaopedro-chaves.github.io/fnpituchinhubr/';
 
 export const EXPORT_LAYOUT = {
