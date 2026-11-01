@@ -9,6 +9,10 @@ A Fortnite Sprites Tracker / Rastreamento de pituchinho/elementais para o Fortni
 > Aqui está o site do repositório:
 https://joaopedro-chaves.github.io/fnpituchinhubr/
 
+## Migração para React e TypeScript
+
+O projeto está em processo de migração para React e TypeScript. O motivo é a necessidade de uma melhor organização do código e a adição de novas funcionalidades que o framework oferece.
+
 ## Arquivamento do projeto
 
 Devido ao encerramento da funcionalidade de elementais por parte da Epic Games, este repositório irá ficar arquivado em 01.01.2027 e não será mais atualizado.

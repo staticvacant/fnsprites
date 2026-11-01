@@ -19,6 +19,8 @@ export const THEME = {
     'Hacker de Saque': { order: 9, slug: 'hacker', gradient: ['#114030', '#051b14'], exportLabel: 'HACKER' },
     'Caçador de Recompensas': { order: 10, slug: 'cacador', gradient: ['#3b1c1c', '#170606'], exportLabel: 'CAÇADOR' },
     'Doce ou Travessura': { order: 11, slug: 'doce-ou-travessura', gradient: ['#592510', '#240a02'], exportLabel: 'DOCE OU TRAVESSURA' },
+    'Valioso': { order: 12, slug: 'valioso', gradient: ['#396562', '#240a02'], exportLabel: 'VALIOSO' },
+    'Amaldiçoado': { order: 13, slug: 'amaldicoado', gradient: ['#114c47', '#041a18'], exportLabel: 'AMALDIÇOADO' },
 }
 
 export function gradientFor(sprite) {

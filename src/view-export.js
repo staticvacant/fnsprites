@@ -48,6 +48,8 @@ export function getRarityGradient(rarity, theme) {
         Hacker: ['#114030', '#051b14'],
         'Caçador de Recompensas': ['#3b1c1c', '#170606'],
         'Doce ou Travessura': ['#592510', '#240a02'],
+        Valioso: ['#396562', '#240a02'],
+        Amaldiçoado: ['#114c47', '#041a18'],
         Básico: ['#1c2436', '#0c0f17'],
         Dourado: ['#61460b', '#241a02'],
         Doce: ['#6b183f', '#260514'],
@@ -258,7 +260,7 @@ export function drawMiniCard(ctx, sprite, x, y, w, h, cardState, imageMap) {
         if (isGrayed) {
             try {
                 ctx.filter = 'grayscale(100%) brightness(48%)';
-            } catch {}
+            } catch { }
         }
         const maxDim = w * 0.82;
         const ratio = Math.min(maxDim / img.width, maxDim / img.height);

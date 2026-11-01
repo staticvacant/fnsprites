@@ -32,6 +32,8 @@ export const THEME_ORDER = [
     'Hacker',
     'Caçador de Recompensas',
     'Doce ou Travessura',
+    'Valioso',
+    'Amaldiçoado',
 ];
 
 export const RARITY_ORDER = ['Mítico', 'Lendário', 'Épico', 'Raro', 'Especial'];
@@ -51,6 +53,8 @@ export const EXPORT_THEME_LABELS = {
     Hacker: 'HACKER',
     'Caçador de Recompensas': 'CAÇADOR',
     'Doce ou Travessura': 'DOCE OU TRAVESSURA',
+    Valioso: 'VALIOSO',
+    Amaldiçoado: 'AMALDIÇOADO',
 };
 
 export const TRADE_THEME_LABELS = {
@@ -62,6 +66,8 @@ export const TRADE_THEME_LABELS = {
     Hacker: 'Hacker',
     'Caçador de Recompensas': 'Caçador de Recompensas',
     'Doce ou Travessura': 'Doce ou Travessura',
+    Valioso: 'Valioso',
+    Amaldiçoado: 'Amaldiçoado',
 };
 
 export const TRACKER_URL = 'https://joaopedro-chaves.github.io/fnpituchinhubr/';
