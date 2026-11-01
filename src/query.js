@@ -16,6 +16,7 @@ export function getSpriteIdSet(sprites = []) {
 export function getSeasonData(season) {
     if (season === 'C7T3') return { name: 'C7T3' };
     if (season === 'C7T4') return { name: 'C7T4' };
+    if (season === 'C7T5') return { name: 'C7T5' };
     return { name: 'none' };
 }
 

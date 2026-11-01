@@ -22,11 +22,54 @@ import {
 } from './query.js';
 
 export function getRarityGradient(rarity, theme) {
+<<<<<<< HEAD
     const rarityInfo = RARITIES[rarity];
     if (rarityInfo?.gradient) return rarityInfo.gradient;
     // Raridade "Especial" não tem gradiente próprio: usa o do tema
     if (rarityInfo) return (THEME[theme] || THEME['Básico']).gradient;
     return RARITIES['Raro'].gradient;
+=======
+    const map = {
+        Rare: ['#104273', '#081a35'],
+        Epic: ['#4d1566', '#1e052c'],
+        Legendary: ['#743e0a', '#301702'],
+        Mythic: ['#70531c', '#2e2107'],
+        Raro: ['#104273', '#081a35'],
+        Épico: ['#4d1566', '#1e052c'],
+        Lendário: ['#743e0a', '#301702'],
+        Mítico: ['#70531c', '#2e2107'],
+    };
+    if (rarity !== 'Special' && rarity !== 'Especial') return map[rarity] || map.Rare;
+
+    const themes = {
+        Basic: ['#1c2436', '#0c0f17'],
+        Gold: ['#61460b', '#241a02'],
+        Candy: ['#6b183f', '#260514'],
+        Galaxy: ['#1f1145', '#080314'],
+        Gem: ['#114c47', '#041a18'],
+        Holofoil: ['#204454', '#09171f'],
+        Cube: ['#4c1d95', '#1e0b3d'],
+        Rift: ['#154b5e', '#04161c'],
+        Quack: ['#322554', '#12091f'],
+        Trapaceiro: ['#441359', '#15051c'],
+        Trapaça: ['#441359', '#15051c'],
+        'Hacker de Saque': ['#114030', '#051b14'],
+        Hacker: ['#114030', '#051b14'],
+        'Caçador de Recompensas': ['#3b1c1c', '#170606'],
+        'Doce ou Travessura': ['#592510', '#240a02'],
+        Valioso: ['#396562', '#240a02'],
+        Amaldiçoado: ['#114c47', '#041a18'],
+        Básico: ['#1c2436', '#0c0f17'],
+        Dourado: ['#61460b', '#241a02'],
+        Doce: ['#6b183f', '#260514'],
+        Galáctico: ['#1f1145', '#080314'],
+        Gema: ['#114c47', '#041a18'],
+        Metálico: ['#204454', '#09171f'],
+        Pato: ['#322554', '#12091f'],
+        Cubo: ['#4c1d95', '#1e0b3d'],
+    };
+    return themes[theme] || themes.Basic;
+>>>>>>> origin/main
 }
 
 export function getRarityTagColors(rarity) {
@@ -215,9 +258,13 @@ export function drawMiniCard(ctx, sprite, x, y, w, h, cardState, imageMap) {
         if (isGrayed) {
             try {
                 ctx.filter = 'grayscale(100%) brightness(48%)';
+<<<<<<< HEAD
             } catch {
                 /* ctx.filter não suportado neste navegador: segue sem o efeito */
             }
+=======
+            } catch { }
+>>>>>>> origin/main
         }
         const maxDim = w * 0.82;
         const ratio = Math.min(maxDim / img.width, maxDim / img.height);

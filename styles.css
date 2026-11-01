@@ -1147,6 +1147,14 @@ a:hover {
     background: linear-gradient(180deg, #592510, #240a02);
 }
 
+.rarity-Especial.theme-Valioso .card-display {
+    background: linear-gradient(180deg, #396562, #240a02);
+}
+
+.rarity-Especial.theme-Amaldiçoado .card-display {
+    background: linear-gradient(180deg, #114c47, #041a18);
+}
+
 /* Special rarity rainbow overlay */
 .rarity-Especial .card-display::after {
     content: '';
@@ -1266,6 +1274,14 @@ body.low-fidelity .rarity-Especial.theme-Caçador-de-Recompensas .card-display {
 
 body.low-fidelity .rarity-Especial.theme-Doce-ou-Travessura .card-display {
     background: #471d0d;
+}
+
+body.low-fidelity .rarity-Especial.theme-Valioso .card-display {
+    background: #396562;
+}
+
+body.low-fidelity .rarity-Especial.theme-Amaldiçoado .card-display {
+    background: #114c47;
 }
 
 body.low-fidelity .rarity-Especial .card-rarity {

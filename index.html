@@ -13,11 +13,143 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
         rel="stylesheet">
+<<<<<<< HEAD
 </head>
 
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+=======
+    <link rel="stylesheet" href="styles.css">
+    <script src="src/data/sprites-data.js" defer></script> <!-- Data Sprites -->
+    <script type="module" src="src/app.js"></script> <!-- App functions -->
+    <script type="module" src="src/taxonomy.js"></script> <!-- Taxonomy functions -->
+</head>
+
+<body>
+
+    <div class="banner" id="viewBanner" hidden>
+        <span>Visualizando uma coleção compartilhada - exibindo apenas pituchinhos coletados.</span>
+        <a href="index.html">Ir para meu rastreador</a>
+    </div>
+
+    <div class="app">
+        <header class="header">
+            <div class="brand">
+                <img src="siteimages/staticsprite.webp" alt="" class="brand-icon" width="36" height="36"
+                    fetchpriority="high">
+                <h1>Rastreador de Pituchinhos</h1>
+            </div>
+            <div class="progress-group">
+                <div class="progress-item">
+                    <div class="progress-meta">
+                        <span class="progress-label">Coleção</span>
+                        <span class="progress-value" id="collectionRatio">0 / 0</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="collectionFill"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-meta">
+                        <span class="progress-label">Dominados</span>
+                        <span class="progress-value" id="masteryRatio">0 / 0</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill mastery" id="masteryFill"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="toolbar">
+            <div class="toolbar-row">
+                <label class="sr-only" for="searchInput">Buscar</label>
+                <input type="search" id="searchInput" class="input" placeholder="Buscar…" autocomplete="off"
+                    spellcheck="false">
+                <label class="sr-only" for="themeFilter">Temas</label>
+                <select id="themeFilter" class="select">
+                    <option value="all">Todos</option>
+                </select>
+                <label class="sr-only" for="seasonFilter">Temporada</label>
+                <select id="seasonFilter" class="select">
+                    <option value="all">Todas Tempo.</option>
+                    <option value="C7T3">C7T3</option>
+                    <option value="C7T4">C7T4</option>
+                    <option value="C7T5">C7T5</option>
+                </select>
+                <label class="sr-only" for="sortOrder">Ordenar</label>
+                <select id="sortOrder" class="select">
+                    <option value="theme">Tema</option>
+                    <option value="sprite">Elementais</option>
+                    <option value="name">Nome</option>
+                    <option value="rarity">Raridade</option>
+                </select>
+                <div class="pills" id="statusPills">
+                    <button type="button" class="pill active" data-status="all">Todos</button>
+                    <button type="button" class="pill" data-status="owned">Coletados</button>
+                    <button type="button" class="pill" data-status="missing">Faltando</button>
+                </div>
+            </div>
+            <div class="toolbar-row">
+                <div class="actions">
+                    <div class="dropdown" id="exportDropdown">
+                        <button type="button" class="btn" id="exportToggle" aria-haspopup="true"
+                            aria-expanded="false">Exportar</button>
+                        <div class="dropdown-menu" aria-label="Opções de exportação e dados">
+                            <div class="dropdown-section-title">Imagens</div>
+                            <button type="button" data-export="collected"><span
+                                    class="dot dot-collected"></span>Coleção</button>
+                            <button type="button" data-export="missing"><span
+                                    class="dot dot-missing"></span>Faltando</button>
+                            <button type="button" data-export="unmastered"><span class="dot dot-unmastered"></span>Não
+                                dominados</button>
+                            <button type="button" data-export="mastered"><span
+                                    class="dot dot-mastered"></span>Dominados</button>
+                            <button type="button" data-export="trade"><span class="dot dot-trade"></span>Trocar</button>
+                            <hr class="dropdown-divider">
+                            <div class="dropdown-section-title">Trocas</div>
+                            <button type="button" id="copyTradeTextBtn"><span class="dot dot-text"></span>Lista de
+                                trocas (texto)</button>
+                            <button type="button" id="copyTradeGridBtn"><span class="dot dot-text"></span>Grade de
+                                trocas (texto)</button>
+                            <hr class="dropdown-divider">
+                            <div class="dropdown-section-title">Dados</div>
+                            <button type="button" id="exportBackupBtn"><span class="dot dot-backup"></span>Backup dos
+                                dados (JSON)</button>
+                            <button type="button" id="importBtn"><span class="dot dot-collected"></span>Importar
+                                dados (JSON)</button>
+                        </div>
+                    </div>
+                    <input type="file" id="importInput" class="file-input" accept=".json">
+                    <button type="button" class="btn" id="shareBtn">Compartilhar</button>
+                    <div class="dropdown" id="settingsDropdown">
+                        <button type="button" class="btn" id="settingsToggle" aria-haspopup="true"
+                            aria-expanded="false">Configurações</button>
+                        <div class="dropdown-menu" aria-label="Opções de configuração">
+                            <div class="switches">
+                                <label class="switch"><input type="checkbox" id="hideMastered"><span>Ocultar
+                                        dominados</span></label>
+                                <label class="switch"><input type="checkbox" id="showUnreleased"><span>Não
+                                        lançados</span></label>
+                                <label class="switch"><input type="checkbox" id="lowFidelity"><span>Baixo
+                                        Desempenho</span></label>
+                                <label class="switch" id="exportModeSwitch"><input type="checkbox"
+                                        id="openExports"><span>Abrir exportações</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="grid" id="spriteGrid" aria-label="Coleção de pituchinhos"></main>
+    </div>
+    <footer class="footer">
+        <p>Fortnite and its materials (Sprites and Data) are trademarks and copyrights of Epic Games, Inc. This website
+            is not endorsed or affilliated with Epic Games, Inc..</p>
+    </footer>
+>>>>>>> origin/main
 </body>
 
 </html>

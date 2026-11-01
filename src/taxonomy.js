@@ -27,6 +27,7 @@ export const THEME = {
     'Hacker de Saque': { order: 9, slug: 'hacker', gradient: ['#114030', '#051b14'], exportLabel: 'HACKER' },
     'Caçador de Recompensas': { order: 10, slug: 'cacador', gradient: ['#3b1c1c', '#170606'], exportLabel: 'CAÇADOR' },
     'Doce ou Travessura': { order: 11, slug: 'doce-ou-travessura', gradient: ['#592510', '#240a02'], exportLabel: 'DOCE OU TRAVESSURA' },
+<<<<<<< HEAD
 };
 
 const byOrder = table =>
@@ -39,6 +40,11 @@ export const THEME_ORDER = byOrder(THEME);
 
 /** Nomes das raridades da mais rara para a mais comum. */
 export const RARITY_ORDER = byOrder(RARITIES);
+=======
+    'Valioso': { order: 12, slug: 'valioso', gradient: ['#396562', '#240a02'], exportLabel: 'VALIOSO' },
+    'Amaldiçoado': { order: 13, slug: 'amaldicoado', gradient: ['#114c47', '#041a18'], exportLabel: 'AMALDIÇOADO' },
+}
+>>>>>>> origin/main
 
 export function gradientFor(sprite) {
     const rarity = RARITIES[sprite.rarity];

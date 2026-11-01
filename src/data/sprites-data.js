@@ -337,8 +337,53 @@ export const baseSprites = [
 
     // ============================ C7T5 ============================ //
 
-    { id: "chesthunter_basic", name: "", theme: "", rarity: "", unreleased: true, season: "C7T5" },
+    { id: "treasurechest_basic", name: "Baunardo", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
+    { id: "treasurechest_cursed", name: "Baunardo Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "treasurechest_jeweled", name: "Baunardo Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
 
+    { id: "treasuremap_basic", name: "Xisconde", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
+    { id: "treasuremap_cursed", name: "Xisconde Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "treasuremap_jeweled", name: "Xisconde Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "unbotheredfish_basic", name: "Apatilda", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
+    { id: "unbotheredfish_cursed", name: "Apatilda Amaldiçoada", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "unbotheredfish_jeweled", name: "Apatilda Valiosa", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "squibblysprite_basic", name: "Polvitozinho", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
+    { id: "squibblysprite_cursed", name: "Polvitozinho Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "squibblysprite_jeweled", name: "Polvitozinho Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "rookgecko_basic", name: "Lil' Uzi Vert Jr.", theme: "Básico", rarity: "Lendário", unreleased: false, season: "C7T5" },
+    { id: "rookgecko_cursed", name: "Lil' Uzi Vert Jr. Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "rookgecko_jeweled", name: "Lil' Uzi Vert Jr. Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "peelybones_basic", name: "Descascadinho", theme: "Básico", rarity: "Raro", unreleased: false, season: "C7T5" },
+    { id: "peelybones_cursed", name: "Descascadinho Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "peelybones_jeweled", name: "Descascadinho Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "playmakerbrewery_basic", name: "Flacko Jr.", theme: "Básico", rarity: "Lendário", unreleased: false, season: "C7T5" },
+    { id: "playmakerbrewery_cursed", name: "Flacko Jr. Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "playmakerbrewery_jeweled", name: "Flacko Jr. Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "parrot_basic", name: "Repitácio", theme: "Básico", rarity: "Raro", unreleased: false, season: "C7T5" },
+    { id: "parrot_cursed", name: "Repitácio Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "parrot_jeweled", name: "Repitácio Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "coinpile_basic", name: "Moedonho", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
+    { id: "coinpile_cursed", name: "Moedonho Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "coinpile_jeweled", name: "Moedonho Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "compass_basic", name: "Localizador", theme: "Básico", rarity: "Raro", unreleased: false, season: "C7T5" },
+    { id: "compass_cursed", name: "Localizador Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "compass_jeweled", name: "Localizador Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "barreloffish_basic", name: "Barrilson", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
+    { id: "barreloffish_cursed", name: "Barrilson Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "barreloffish_jeweled", name: "Barrilson Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
+
+    { id: "starlight_basic", name: "Bons Sonhos", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
+
+    { id: "feedjet_basic", name: "Caracol Telepático", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
 ];
 
 if (typeof window !== 'undefined') {
