@@ -228,13 +228,15 @@ export function drawMiniCard(ctx, sprite, x, y, w, h, cardState, imageMap, palet
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, w, displayH);
 
-    /* Special rainbow overlay (135deg) */
+    /* Special pastel rainbow overlay (135deg) */
     if (rarity === 'Especial') {
         const rainbow = ctx.createLinearGradient(x, y, x + w, y + displayH);
-        rainbow.addColorStop(0, 'rgba(74, 222, 128, 0.35)');
-        rainbow.addColorStop(0.35, 'rgba(96, 165, 250, 0.25)');
-        rainbow.addColorStop(0.68, 'rgba(192, 132, 252, 0.3)');
-        rainbow.addColorStop(1, 'rgba(244, 114, 182, 0.28)');
+        rainbow.addColorStop(0, 'rgba(152, 245, 201, 0.2)');
+        rainbow.addColorStop(0.22, 'rgba(142, 227, 245, 0.18)');
+        rainbow.addColorStop(0.44, 'rgba(163, 191, 250, 0.18)');
+        rainbow.addColorStop(0.66, 'rgba(212, 184, 255, 0.2)');
+        rainbow.addColorStop(0.84, 'rgba(249, 180, 212, 0.2)');
+        rainbow.addColorStop(1, 'rgba(253, 224, 141, 0.16)');
         ctx.fillStyle = rainbow;
         ctx.fillRect(x, y, w, displayH);
     }
@@ -323,7 +325,16 @@ export function drawMiniCard(ctx, sprite, x, y, w, h, cardState, imageMap, palet
     ctx.fill();
 
     /* Rarity Strip (.card-rarity) with diagonal top cut */
-    const stripGrad = ctx.createLinearGradient(x, stripTopY, x + w, stripTopY);
+    let stripGrad;
+    if (rarity === 'Especial') {
+        // Espelha linear-gradient(135deg, ...) do CSS ao longo do eixo diagonal (dx === dy)
+        const cx = x + w / 2;
+        const cy = stripTopY + stripH / 2;
+        const offset = (w + stripH) / 4;
+        stripGrad = ctx.createLinearGradient(cx - offset, cy - offset, cx + offset, cy + offset);
+    } else {
+        stripGrad = ctx.createLinearGradient(x, stripTopY, x + w, stripTopY);
+    }
     stripStyle.colors.forEach((col, idx) => {
         stripGrad.addColorStop(idx / Math.max(1, stripStyle.colors.length - 1), col);
     });
@@ -337,10 +348,10 @@ export function drawMiniCard(ctx, sprite, x, y, w, h, cardState, imageMap, palet
     ctx.fill();
 
     ctx.save();
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = rarity === 'Especial' ? '#1c1917' : '#ffffff';
     if (rarity === 'Especial') {
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-        ctx.shadowBlur = 2;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.35)';
+        ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 1;
     }
     ctx.font = '800 7.5px "Roboto", sans-serif';

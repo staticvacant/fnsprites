@@ -1581,16 +1581,18 @@ body.low-fidelity dialog.modal-popup::backdrop {
    Rarity Backgrounds
    =================================================== */
 
-/* Special rarity rainbow overlay (display/strip base colors come from src/taxonomy.js) */
-.rarity-Especial .card-display::after {
+/* Special rarity pastel rainbow overlay (display/strip base colors come from src/taxonomy.js) */
+:is(.rarity-Especial, .rarity-special) .card-display::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-            rgba(74, 222, 128, 0.35) 0%,
-            rgba(96, 165, 250, 0.25) 35%,
-            rgba(192, 132, 252, 0.3) 68%,
-            rgba(244, 114, 182, 0.28) 100%);
+    background: linear-gradient(135deg var(--in-oklab),
+            rgba(152, 245, 201, 0.2) 0%,
+            rgba(142, 227, 245, 0.18) 22%,
+            rgba(163, 191, 250, 0.18) 44%,
+            rgba(212, 184, 255, 0.2) 66%,
+            rgba(249, 180, 212, 0.2) 84%,
+            rgba(253, 224, 141, 0.16) 100%);
     pointer-events: none;
     z-index: 1;
 }
@@ -1608,40 +1610,38 @@ body.low-fidelity dialog.modal-popup::backdrop {
 
 @keyframes rainbowRaritySlide {
     0% {
-        background-position: 0% 50%;
+        background-position: 0% 0%;
     }
 
     100% {
-        background-position: 100% 50%;
+        background-position: 100% 100%;
     }
 }
 
 .rarity-Especial,
 .rarity-special {
-    --especial-rainbow: linear-gradient(
-        90deg var(--in-oklab),
-        #22c55e 0%,
-        #06b6d4 8.33%,
-        #3b82f6 16.67%,
-        #a855f7 25%,
-        #ec4899 33.33%,
-        #ef4444 41.67%,
-        #22c55e 50%,
-        #06b6d4 58.33%,
-        #3b82f6 66.67%,
-        #a855f7 75%,
-        #ec4899 83.33%,
-        #ef4444 91.67%,
-        #22c55e 100%
-    );
+    --especial-rainbow: linear-gradient(135deg var(--in-oklab),
+            #98f5c9 0%,
+            #8ee3f5 8.33%,
+            #a3bffa 16.67%,
+            #d4b8ff 25%,
+            #f9b4d4 33.33%,
+            #fde08d 41.67%,
+            #98f5c9 50%,
+            #8ee3f5 58.33%,
+            #a3bffa 66.67%,
+            #d4b8ff 75%,
+            #f9b4d4 83.33%,
+            #fde08d 91.67%,
+            #98f5c9 100%);
 }
 
 :is(.rarity-Especial, .rarity-special) .card-rarity,
 :is(.rarity-Especial, .rarity-special) .card-rarity-wrap::before,
 :is(.rarity-Especial, .rarity-special) .card-rarity-wrap::after {
     background: var(--especial-rainbow);
-    background-size: 200% 100%;
-    background-position: 0% 50%;
+    background-size: 200% 200%;
+    background-position: 0% 0%;
     animation: rainbowRaritySlide 4.5s linear infinite;
     animation-play-state: paused;
 
@@ -1657,8 +1657,8 @@ body.low-fidelity dialog.modal-popup::backdrop {
 }
 
 :is(.rarity-Especial, .rarity-special) .card-rarity {
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    color: #1c1917;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 :is(.rarity-Especial, .rarity-special) .card-rarity-wrap::before {
@@ -1689,7 +1689,7 @@ body.low-fidelity dialog.modal-popup::backdrop {
    =================================================== */
 
 body.low-fidelity .card-display::before,
-body.low-fidelity .rarity-Especial .card-display::after,
+body.low-fidelity :is(.rarity-Especial, .rarity-special) .card-display::after,
 body.low-fidelity .card-rarity-wrap::before,
 body.low-fidelity .card-rarity-wrap::after {
     display: none;
@@ -1700,7 +1700,9 @@ body.low-fidelity .card-display {
 }
 
 body.low-fidelity :is(.rarity-Especial, .rarity-special) .card-rarity {
-    background: #3b82f6;
+    background: linear-gradient(135deg, #98f5c9, #8ee3f5, #a3bffa, #d4b8ff, #f9b4d4, #fde08d);
+    color: #1c1917;
+    text-shadow: none;
     animation: none;
 }
 
@@ -1920,6 +1922,7 @@ body.low-fidelity .controller-hud {
    =================================================== */
 
 @media (max-width: 767px) {
+
     html,
     body {
         max-width: 100%;
@@ -2126,6 +2129,7 @@ body.low-fidelity .controller-hud {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .card:hover,
     .card.obtained:hover,
     .card:focus-visible,

@@ -62,28 +62,127 @@ export const RARITIES = {
         displayGradient: null,
         lowFidelityBg: null,
         strip: {
-            colors: ['#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#ef4444', '#f97316', '#eab308'],
-            glow: 'rgba(168, 85, 247, 0.45)',
+            colors: ['#98f5c9', '#8ee3f5', '#a3bffa', '#d4b8ff', '#f9b4d4', '#fde08d'],
+            glow: 'rgba(212, 184, 255, 0.45)',
         },
-        tag: ['#51f7cc', '#000000'],
+        tag: ['#98f5c9', '#1c1917'],
     },
 };
 
 export const THEME = {
-    'Básico': { order: 0, slug: 'basico', gradient: ['#1c2436', '#0c0f17'], exportLabel: 'NORMAL', tradeLabel: 'Base' },
-    'Dourado': { order: 1, slug: 'dourado', gradient: ['#61460b', '#241a02'], exportLabel: 'DOURADO' },
-    'Doce': { order: 2, slug: 'doce', gradient: ['#6b183f', '#260514'], exportLabel: 'DOCE' },
-    'Galáctico': { order: 3, slug: 'galactico', gradient: ['#1f1145', '#080314'], exportLabel: 'GALÁCTICO' },
-    'Gema': { order: 4, slug: 'gema', gradient: ['#114c47', '#041a18'], exportLabel: 'GEMA' },
-    'Metálico': { order: 5, slug: 'metalico', gradient: ['#204454', '#09171f'], exportLabel: 'METÁLICO' },
-    'Cubo': { order: 6, slug: 'cubo', gradient: ['#4c1d95', '#1e0b3d'], exportLabel: 'CUBO' },
-    'Pato': { order: 7, slug: 'pato', gradient: ['#322554', '#12091f'], exportLabel: 'PATO' },
-    'Trapaceiro': { order: 8, slug: 'trapaceiro', gradient: ['#295913', '#0f360a'], exportLabel: 'TRAPACEIRO' },
-    'Hacker de Saque': { order: 9, slug: 'hacker', gradient: ['#114030', '#051b14'], exportLabel: 'HACKER' },
-    'Caçador de Recompensas': { order: 10, slug: 'cacador', gradient: ['#3b1c1c', '#170606'], exportLabel: 'CAÇADOR' },
-    'Doce ou Travessura': { order: 11, slug: 'doce-ou-travessura', gradient: ['#592510', '#240a02'], exportLabel: 'DOCE OU TRAVESSURA' },
-    'Valioso': { order: 12, slug: 'valioso', gradient: ['#396562', '#240a02'], exportLabel: 'VALIOSO' },
-    'Amaldiçoado': { order: 13, slug: 'amaldicoado', gradient: ['#114c47', '#041a18'], exportLabel: 'AMALDIÇOADO' },
+    'Básico': {
+        order: 0,
+        slug: 'basico',
+        gradient: ['#4a6185', '#1f2b3d'],
+        displayGradient: ['#617aa3', '#3b4e6e', '#1f2b3d'],
+        lowFidelityBg: '#617aa3',
+        exportLabel: 'NORMAL',
+        tradeLabel: 'Base',
+    },
+    'Dourado': {
+        order: 1,
+        slug: 'dourado',
+        gradient: ['#ca9706', '#614203'],
+        displayGradient: ['#eab308', '#a17407', '#614203'],
+        lowFidelityBg: '#eab308',
+        exportLabel: 'DOURADO',
+    },
+    'Doce': {
+        order: 2,
+        slug: 'doce',
+        gradient: ['#c4356e', '#661135'],
+        displayGradient: ['#e84d8a', '#a32459', '#661135'],
+        lowFidelityBg: '#e84d8a',
+        exportLabel: 'DOCE',
+    },
+    'Galáctico': {
+        order: 3,
+        slug: 'galactico',
+        gradient: ['#4a37bf', '#1c115e'],
+        displayGradient: ['#5e4ae0', '#3827a3', '#1c115e'],
+        lowFidelityBg: '#5e4ae0',
+        exportLabel: 'GALÁCTICO',
+    },
+    'Gema': {
+        order: 4,
+        slug: 'gema',
+        gradient: ['#1eb5a3', '#08524a'],
+        displayGradient: ['#2dd4bf', '#0f8c7e', '#08524a'],
+        lowFidelityBg: '#2dd4bf',
+        exportLabel: 'GEMA',
+    },
+    'Metálico': {
+        order: 5,
+        slug: 'metalico',
+        gradient: ['#2a8bb8', '#0e4159'],
+        displayGradient: ['#38a8d8', '#1d6f96', '#0e4159'],
+        lowFidelityBg: '#38a8d8',
+        exportLabel: 'METÁLICO',
+    },
+    'Cubo': {
+        order: 6,
+        slug: 'cubo',
+        gradient: ['#7736c9', '#340e6b'],
+        displayGradient: ['#924de8', '#5f24b0', '#340e6b'],
+        lowFidelityBg: '#924de8',
+        exportLabel: 'CUBO',
+    },
+    'Pato': {
+        order: 7,
+        slug: 'pato',
+        gradient: ['#4958c7', '#1f2666'],
+        displayGradient: ['#5a6ce3', '#3946a8', '#1f2666'],
+        lowFidelityBg: '#5a6ce3',
+        exportLabel: 'PATO',
+    },
+    'Trapaceiro': {
+        order: 8,
+        slug: 'trapaceiro',
+        gradient: ['#31a84b', '#104f1e'],
+        displayGradient: ['#42c45e', '#208737', '#104f1e'],
+        lowFidelityBg: '#42c45e',
+        exportLabel: 'TRAPACEIRO',
+    },
+    'Hacker de Saque': {
+        order: 9,
+        slug: 'hacker',
+        gradient: ['#2978de', '#0e3678'],
+        displayGradient: ['#3a8ef6', '#1c5ec2', '#0e3678'],
+        lowFidelityBg: '#3a8ef6',
+        exportLabel: 'HACKER',
+    },
+    'Caçador de Recompensas': {
+        order: 10,
+        slug: 'cacador',
+        gradient: ['#b832ba', '#570f5c'],
+        displayGradient: ['#d442d4', '#942199', '#570f5c'],
+        lowFidelityBg: '#d442d4',
+        exportLabel: 'CAÇADOR',
+    },
+    'Doce ou Travessura': {
+        order: 11,
+        slug: 'doce-ou-travessura',
+        gradient: ['#d96518', '#6b2703'],
+        displayGradient: ['#f57c25', '#b54a0b', '#6b2703'],
+        lowFidelityBg: '#f57c25',
+        exportLabel: 'DOCE OU TRAVESSURA',
+    },
+    'Valioso': {
+        order: 12,
+        slug: 'valioso',
+        gradient: ['#c43143', '#5e0e18'],
+        displayGradient: ['#e04658', '#9e2130', '#5e0e18'],
+        lowFidelityBg: '#e04658',
+        exportLabel: 'VALIOSO',
+    },
+    'Amaldiçoado': {
+        order: 13,
+        slug: 'amaldicoado',
+        gradient: ['#26ab7d', '#0c4f37'],
+        displayGradient: ['#32c794', '#18855f', '#0c4f37'],
+        lowFidelityBg: '#32c794',
+        exportLabel: 'AMALDIÇOADO',
+    },
 };
 
 const byOrder = table =>
@@ -119,7 +218,8 @@ export function getRarityDisplayGradient(rarity, theme) {
     const rarityInfo = RARITIES[rarity];
     if (rarityInfo?.displayGradient) return rarityInfo.displayGradient;
     if (rarity === 'Especial') {
-        return (THEME[theme] || THEME['Básico']).gradient;
+        const themeInfo = THEME[theme] || THEME['Básico'];
+        return themeInfo.displayGradient || themeInfo.gradient;
     }
     return RARITIES['Raro'].displayGradient;
 }
@@ -134,6 +234,7 @@ export function getRarityTagColors(rarity) {
 
 export function getCardStyleVars(rarity, theme) {
     const rarityInfo = RARITIES[rarity] || RARITIES['Raro'];
+    const themeInfo = THEME[theme] || THEME['Básico'];
     const colors = getRarityDisplayGradient(rarity, theme);
     const displayBg =
         colors.length >= 3
@@ -141,7 +242,7 @@ export function getCardStyleVars(rarity, theme) {
             : `linear-gradient(180deg, ${colors[0]}, ${colors[1]})`;
     const vars = {
         '--card-display-bg': displayBg,
-        '--card-low-fidelity-bg': rarityInfo.lowFidelityBg || colors[0],
+        '--card-low-fidelity-bg': rarityInfo.lowFidelityBg || themeInfo.lowFidelityBg || colors[0],
     };
     if (rarity !== 'Especial') {
         const strip = getRarityStripStyle(rarity);

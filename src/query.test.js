@@ -23,7 +23,7 @@ import {
     getDisplayName,
     applyCollectionBatch,
 } from './query.js';
-import { THEME, THEME_ORDER, getCardStyleVars } from './taxonomy.js';
+import { THEME, THEME_ORDER, getCardStyleVars, getRarityStripStyle } from './taxonomy.js';
 import { baseSprites } from './data/sprites-data.js';
 import { getSpriteImageUrl } from './assets/spriteImages.js';
 
@@ -175,16 +175,27 @@ describe('contagens e temas', () => {
 
     it('getCardStyleVars deriva tokens de cor da fonte única sem divergência no modo simples', () => {
         for (const [themeName, entry] of Object.entries(THEME)) {
+            const colors = entry.displayGradient || entry.gradient;
             const vars = getCardStyleVars('Especial', themeName);
+            expect(colors).toHaveLength(3);
             expect(vars['--card-display-bg']).toBe(
-                `linear-gradient(180deg, ${entry.gradient[0]}, ${entry.gradient[1]})`
+                `linear-gradient(180deg, ${colors[0]} 0%, ${colors[1]} 75%, ${colors[2]} 100%)`
             );
-            expect(vars['--card-low-fidelity-bg']).toBe(entry.gradient[0]);
+            expect(vars['--card-low-fidelity-bg']).toBe(entry.lowFidelityBg || colors[0]);
         }
 
         const rareVars = getCardStyleVars('Raro', 'Básico');
         expect(rareVars['--card-strip-bg']).toContain('#3b82f6');
         expect(rareVars['--rarity-glow']).toBeTruthy();
+
+        expect(getRarityStripStyle('Especial').colors).toEqual([
+            '#98f5c9',
+            '#8ee3f5',
+            '#a3bffa',
+            '#d4b8ff',
+            '#f9b4d4',
+            '#fde08d',
+        ]);
     });
 
     it('getFamilyKeys preserva ordem de primeira aparição sem duplicatas', () => {

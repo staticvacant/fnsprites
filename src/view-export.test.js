@@ -213,7 +213,7 @@ describe('view-export (paridade)', () => {
             rotate: vi.fn(),
             scale: vi.fn(),
             setLineDash: vi.fn(),
-            createLinearGradient: vi.fn(() => gradientStub),
+            createLinearGradient: vi.fn((_x0 = 0, _y0 = 0, _x1 = 0, _y1 = 0) => gradientStub),
             measureText: vi.fn(text => ({ width: String(text).length * 5 })),
             fillText: vi.fn(text => filledTexts.push(text)),
             drawImage: vi.fn(),
@@ -243,8 +243,8 @@ describe('view-export (paridade)', () => {
         expect(filledTexts).toContain('MÍTICO');
     });
 
-    it('getRarityGradient usa verde no tema Trapaceiro e drawMiniCard usa __fallback__ quando falta imagem', () => {
-        expect(getRarityGradient('Especial', 'Trapaceiro')).toEqual(['#295913', '#0f360a']);
+    it('getRarityGradient usa verde vibrante no tema Trapaceiro e drawMiniCard usa __fallback__ quando falta imagem', () => {
+        expect(getRarityGradient('Especial', 'Trapaceiro')).toEqual(['#31a84b', '#104f1e']);
 
         const fallbackImg = { complete: true, naturalWidth: 128, width: 128, height: 128 };
         const gradientStub = { addColorStop: vi.fn() };
@@ -264,7 +264,7 @@ describe('view-export (paridade)', () => {
             rotate: vi.fn(),
             scale: vi.fn(),
             setLineDash: vi.fn(),
-            createLinearGradient: vi.fn(() => gradientStub),
+            createLinearGradient: vi.fn((_x0 = 0, _y0 = 0, _x1 = 0, _y1 = 0) => gradientStub),
             measureText: vi.fn(text => ({ width: String(text).length * 5 })),
             fillText: vi.fn(),
             drawImage: vi.fn(),
@@ -284,6 +284,13 @@ describe('view-export (paridade)', () => {
 
         expect(ctx.drawImage).toHaveBeenCalledTimes(1);
         expect(ctx.drawImage.mock.calls[0][0]).toBe(fallbackImg);
+
+        // Na raridade Especial, o overlay (2º gradiente) e a faixa (5º gradiente) devem ser diagonais
+        const [stripX1, stripY1, stripX2, stripY2] = ctx.createLinearGradient.mock.calls[4];
+        expect(stripX2 - stripX1).toBeGreaterThan(0);
+        expect(stripY2 - stripY1).toBe(stripX2 - stripX1);
+        expect(gradientStub.addColorStop).toHaveBeenCalledWith(0, '#98f5c9');
+        expect(gradientStub.addColorStop).toHaveBeenCalledWith(1, '#fde08d');
     });
 
     it('exportImage aguarda document.fonts.ready e notifica erro seguro quando getContext("2d") retorna null', async () => {
