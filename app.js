@@ -16,7 +16,32 @@ const KEYS = {
     season: 'fn_state_season',
 };
 
-const THEME_ORDER = ['Basic', 'Gold', 'Candy', 'Galaxy', 'Gem', 'Holofoil', 'Cube', 'Rift', 'Quack', 'Cheat'];
+const THEME_ORDER = ['Basic', 'Fortune', 'Cursed', 'Gold', 'Candy', 'Galaxy', 'Gem', 'Holofoil', 'Cube', 'Rift', 'Quack', 'Cheat'];
+
+/* Seasons, newest last. icon = small round badge, banner = the season picture */
+const SEASONS = [
+    { key: 'Runners', label: 'Runners', tag: 'C7S3', icon: 'siteimages/s_runners.png', banner: 'siteimages/runners.jpg' },
+    { key: 'Override', label: 'Override', tag: 'C7S4', icon: 'siteimages/s_override.png', banner: 'siteimages/override.jpg' },
+    { key: 'Treasure Hunters', label: 'Treasure Hunters', tag: 'C7 Mini Season', icon: 'siteimages/s_treasure.png', banner: 'siteimages/treasure hunters.jpg' },
+];
+const ALL_SEASONS = { key: 'all', label: 'All Seasons', tag: 'Every sprite', icon: 'siteimages/staticsprite.png', banner: '' };
+const UNKNOWN_SEASON = { key: 'Unknown', label: 'Unknown', tag: '', icon: 'siteimages/s_unknown.png', banner: '' };
+const FALLBACK_SPRITE_IMG = 'siteimages/staticsprite.png';
+
+const STYLE_INFO = {
+    Basic: 'The standard version of every sprite.',
+    Gold: 'Shiny gold version.',
+    Candy: 'Gummy, see-through candy version.',
+    Galaxy: 'Starry space version.',
+    Gem: 'Crystal gem version.',
+    Holofoil: 'Rainbow holographic version.',
+    Cube: 'Purple Cube / Rift version.',
+    Rift: 'Rift version.',
+    Quack: 'Duck-themed version.',
+    Cheat: 'Cheat Master version from Override.',
+    Fortune: 'Treasure-themed version that boosts loot.',
+    Cursed: 'Boosts rare sprite chances, but water hurts you.',
+};
 const RARITY_ORDER = ['Mythic', 'Legendary', 'Epic', 'Rare', 'Special'];
 const STATUS_FILTERS = ['all', 'owned', 'missing'];
 const SORT_METHODS = ['theme', 'sprite', 'name', 'rarity'];
@@ -76,7 +101,14 @@ const dom = {
     hideMastered: document.getElementById('hideMastered'),
     showUnreleased: document.getElementById('showUnreleased'),
     lowFidelity: document.getElementById('lowFidelity'),
-    seasonFilter: document.getElementById('seasonFilter'),
+    seasonPicker: document.getElementById('seasonPicker'),
+    seasonToggle: document.getElementById('seasonToggle'),
+    seasonToggleIcon: document.getElementById('seasonToggleIcon'),
+    seasonToggleLabel: document.getElementById('seasonToggleLabel'),
+    seasonMenu: document.getElementById('seasonMenu'),
+    mainTabs: document.getElementById('mainTabs'),
+    spriteIndex: document.getElementById('spriteIndex'),
+    seasonCards: document.getElementById('seasonCards'),
     openExports: document.getElementById('openExports'), // ADD THIS
     exportModeSwitch: document.getElementById('exportModeSwitch'),
     exportDropdown: document.getElementById('exportDropdown'),
@@ -138,6 +170,7 @@ function load() {
     state.filters.search = localStorage.getItem(KEYS.search) || '';
     state.filters.theme = localStorage.getItem(KEYS.theme) || 'all';
     state.filters.season = localStorage.getItem(KEYS.season) || 'all';
+    if (state.filters.season !== 'all' && !SEASONS.some(season => season.key === state.filters.season)) state.filters.season = 'all';
 
     let savedStatus = localStorage.getItem(KEYS.status) || 'all';
     if (savedStatus === 'obtained') savedStatus = 'owned';
@@ -160,7 +193,7 @@ function load() {
 function applyStateToDOM() {
     dom.searchInput.value = state.filters.search;
     dom.themeFilter.value = state.filters.theme;
-    dom.seasonFilter.value = state.filters.season;
+    updateSeasonPicker();
     dom.sortOrder.value = state.settings.sortOrder;
     dom.hideMastered.checked = state.settings.hideMastered;
     dom.showUnreleased.checked = state.settings.showUnreleased;
@@ -349,10 +382,14 @@ function getSpriteIdSet(sprites = baseSprites) {
     return new Set(sprites.map(sprite => sprite.id));
 }
 
+function getSeason(key) {
+    if (key === 'all') return ALL_SEASONS;
+    return SEASONS.find(season => season.key === key) || UNKNOWN_SEASON;
+}
+
 function getSeasonData(season) {
-    if (season === 'Runners') return { name: 'Runners', img: 'siteimages/s_runners.png' };
-    if (season === 'Override') return { name: 'Override', img: 'siteimages/s_override.png' };
-    return { name: 'Unknown', img: 'siteimages/s_unknown.png' };
+    const data = getSeason(season || 'Unknown');
+    return { name: data.label, img: data.icon };
 }
 
 function getReleasedSprites() {
@@ -545,8 +582,41 @@ function renderGrid() {
     );
 
     const frag = document.createDocumentFragment();
+    const sortMethod = state.settings.sortOrder;
+    const splitBySeason = state.filters.season === 'all';
+    if (splitBySeason) {
+        const seasonRank = key => { const i = SEASONS.findIndex(s => s.key === key); return i === -1 ? 999 : i; };
+        items = items
+            .map((sprite, i) => ({ sprite, i }))
+            .sort((a, b) => (seasonRank(b.sprite.season) - seasonRank(a.sprite.season)) || (a.i - b.i))
+            .map(entry => entry.sprite);
+    }
+    let currentSeason = null;
+    let currentGroup = null;
+
+    if (!items.length) {
+        const empty = document.createElement('p');
+        empty.className = 'grid-empty';
+        empty.textContent = 'No sprites match these filters.';
+        frag.appendChild(empty);
+    }
 
     for (const sprite of items) {
+        const seasonKey = sprite.season || 'Unknown';
+        if (splitBySeason && seasonKey !== currentSeason) {
+            currentSeason = seasonKey;
+            currentGroup = null;
+            frag.appendChild(buildSeasonDivider(seasonKey));
+        }
+        const groupLabel = getGroupLabel(sprite, sortMethod);
+        if (groupLabel && groupLabel !== currentGroup) {
+            currentGroup = groupLabel;
+            const sub = document.createElement('div');
+            sub.className = 'group-divider';
+            sub.textContent = groupLabel;
+            frag.appendChild(sub);
+        }
+
         const obtained = isObtained(sprite.id);
         const mastered = isMastered(sprite.id);
         const hasHack = !obtained && hackableRewards.has(sprite.id);
@@ -581,6 +651,192 @@ function renderGrid() {
     dom.grid.appendChild(frag);
     fitCardNames();
     updateProgress();
+}
+
+function getGroupLabel(sprite, method) {
+    if (method === 'theme') return sprite.theme === 'Basic' ? 'Base' : getUiThemeLabel(sprite.theme);
+    if (method === 'rarity') return sprite.rarity;
+    if (method === 'sprite') return getCharName(getFamilyKey(sprite));
+    return null;
+}
+
+function buildSeasonDivider(seasonKey) {
+    const season = getSeason(seasonKey);
+    const released = baseSprites.filter(s => (s.season || 'Unknown') === seasonKey && !s.unreleased);
+    const owned = released.filter(s => isObtained(s.id)).length;
+    const pct = released.length ? Math.round((owned / released.length) * 100) : 0;
+    const el = document.createElement('div');
+    el.className = 'season-divider';
+    if (season.banner) el.style.setProperty('--banner', `url("${encodeURI(season.banner)}")`);
+    el.innerHTML = `
+        <img src="${escapeHTML(season.icon)}" alt="" class="season-divider-icon">
+        <div class="season-divider-text">
+            <span class="season-divider-tag">${escapeHTML(season.tag)}</span>
+            <h2>${escapeHTML(season.label)}</h2>
+        </div>
+        <div class="season-divider-count">
+            <span>${owned} / ${released.length}</span>
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    return el;
+}
+
+function handleMissingImage(img) {
+    if (img.dataset.fallback) { img.style.opacity = '0.2'; return; }
+    img.dataset.fallback = '1';
+    img.classList.add('img-missing');
+    img.src = FALLBACK_SPRITE_IMG;
+}
+
+/* ---------- Season picker ---------- */
+
+function renderSeasonMenu() {
+    const options = [ALL_SEASONS, ...[...SEASONS].reverse()];
+    dom.seasonMenu.innerHTML = options.map(season => {
+        const count = season.key === 'all'
+            ? baseSprites.filter(s => !s.unreleased).length
+            : baseSprites.filter(s => s.season === season.key && !s.unreleased).length;
+        const bg = season.banner ? `style="--banner: url('${encodeURI(season.banner)}')"` : '';
+        return `<button type="button" class="season-option" role="option" data-season="${escapeHTML(season.key)}" ${bg}>
+            <img src="${escapeHTML(season.icon)}" alt="" class="season-option-icon">
+            <span class="season-option-text">
+                <strong>${escapeHTML(season.label)}</strong>
+                <small>${escapeHTML(season.tag)} · ${count} sprites</small>
+            </span>
+        </button>`;
+    }).join('');
+}
+
+function updateSeasonPicker() {
+    const season = getSeason(state.filters.season);
+    dom.seasonToggleIcon.src = season.icon;
+    dom.seasonToggleLabel.textContent = season.key === 'all' ? 'All Seasons' : `${season.label} - ${season.tag}`;
+    dom.seasonMenu.querySelectorAll('.season-option').forEach(opt => {
+        const selected = opt.dataset.season === state.filters.season;
+        opt.classList.toggle('selected', selected);
+        opt.setAttribute('aria-selected', String(selected));
+    });
+}
+
+function setSeasonPickerOpen(open) {
+    dom.seasonPicker.classList.toggle('open', open);
+    dom.seasonToggle.setAttribute('aria-expanded', String(open));
+    if (open) {
+        closeDropdowns();
+        const target = dom.seasonMenu.querySelector('.season-option.selected') || dom.seasonMenu.querySelector('.season-option');
+        if (target) target.focus();
+    }
+}
+
+function setSeason(key) {
+    state.filters.season = key;
+    persist(KEYS.season, key);
+    updateSeasonPicker();
+    renderGrid();
+}
+
+/* ---------- Tabs ---------- */
+
+const TABS = ['collection', 'index', 'seasons'];
+
+function tabFromHash() {
+    const hash = location.hash.replace('#', '');
+    return TABS.includes(hash) ? hash : 'collection';
+}
+
+function showTab(name, updateHash = true) {
+    if (state.viewMode) name = 'collection';
+    TABS.forEach(tab => {
+        document.getElementById(`view-${tab}`).hidden = tab !== name;
+    });
+    dom.mainTabs.querySelectorAll('button.tab').forEach(btn => {
+        const active = btn.dataset.tab === name;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+    });
+    if (name === 'index') renderSpriteIndex();
+    if (name === 'seasons') renderSeasonCards();
+    if (name === 'collection') fitCardNames();
+    if (updateHash) {
+        const newHash = name === 'collection' ? '' : `#${name}`;
+        if (location.hash !== newHash) history.replaceState(null, '', location.pathname + location.search + newHash);
+    }
+}
+
+/* ---------- Sprite Index ---------- */
+
+function renderSpriteIndex() {
+    const html = [...SEASONS].reverse().map(season => {
+        const sprites = baseSprites.filter(s => s.season === season.key);
+        if (!sprites.length) return '';
+        const families = new Map();
+        sprites.forEach(s => {
+            const key = getFamilyKey(s);
+            if (!families.has(key)) families.set(key, []);
+            families.get(key).push(s);
+        });
+        const rows = [...families.values()]
+            .map(list => {
+                const base = list.find(s => s.theme === 'Basic') || list[0];
+                return { base, list: list.sort((a, b) => getOrderedIndex(THEME_ORDER, a.theme) - getOrderedIndex(THEME_ORDER, b.theme)) };
+            })
+            .sort((a, b) => getOrderedIndex(RARITY_ORDER, a.base.rarity) - getOrderedIndex(RARITY_ORDER, b.base.rarity) || a.base.name.localeCompare(b.base.name));
+
+        const cards = rows.map(({ base, list }) => {
+            const owned = list.filter(s => isObtained(s.id)).length;
+            const chips = list.map(s => {
+                const cls = ['style-chip', `chip-${s.theme}`];
+                if (s.unreleased) cls.push('upcoming');
+                if (isObtained(s.id)) cls.push('owned');
+                const label = s.theme === 'Basic' ? 'Base' : getUiThemeLabel(s.theme);
+                return `<span class="${cls.join(' ')}" title="${escapeHTML(s.name)}${s.unreleased ? ' (coming soon)' : ''}">${escapeHTML(label)}</span>`;
+            }).join('');
+            return `<article class="index-card rarity-${escapeHTML(base.rarity)}">
+                <div class="index-art"><img src="sprites/${encodeURIComponent(base.id)}.png" alt="" loading="lazy"></div>
+                <div class="index-body">
+                    <h4>${escapeHTML(base.name)}</h4>
+                    <span class="index-rarity">${escapeHTML(base.rarity)}</span>
+                    <div class="index-chips">${chips}</div>
+                    <span class="index-owned">${owned} / ${list.length} owned</span>
+                </div>
+            </article>`;
+        }).join('');
+
+        return `<section class="index-season">
+            ${buildSeasonDivider(season.key).outerHTML}
+            <div class="index-grid">${cards}</div>
+        </section>`;
+    }).join('');
+    dom.spriteIndex.innerHTML = html;
+}
+
+/* ---------- Seasons & Styles ---------- */
+
+function renderSeasonCards() {
+    dom.seasonCards.innerHTML = [...SEASONS].reverse().map(season => {
+        const sprites = baseSprites.filter(s => s.season === season.key);
+        const released = sprites.filter(s => !s.unreleased);
+        const families = new Set(sprites.map(getFamilyKey)).size;
+        const owned = released.filter(s => isObtained(s.id)).length;
+        const themes = getActiveThemes(sprites);
+        const styles = themes.map(theme => {
+            const upcoming = sprites.filter(s => s.theme === theme).every(s => s.unreleased);
+            const label = theme === 'Basic' ? 'Base' : getUiThemeLabel(theme);
+            return `<li class="${upcoming ? 'upcoming' : ''}"><span class="style-chip chip-${escapeHTML(theme)}">${escapeHTML(label)}</span>
+                <span>${escapeHTML(STYLE_INFO[theme] || '')}${upcoming ? ' <em>Coming soon</em>' : ''}</span></li>`;
+        }).join('');
+        return `<article class="season-card">
+            <div class="season-card-banner"><img src="${encodeURI(season.banner)}" alt="${escapeHTML(season.label)} season art" loading="lazy">
+                <img src="${escapeHTML(season.icon)}" alt="" class="season-card-icon"></div>
+            <div class="season-card-body">
+                <span class="season-divider-tag">${escapeHTML(season.tag)}</span>
+                <h3>${escapeHTML(season.label)}</h3>
+                <p class="season-card-stats"><strong>${families}</strong> sprites · <strong>${released.length}</strong> out now · <strong>${owned}</strong> owned</p>
+                <ul class="style-list">${styles}</ul>
+                <button type="button" class="btn btn-accent" data-goto-season="${escapeHTML(season.key)}">Track ${escapeHTML(season.label)}</button>
+            </div>
+        </article>`;
+    }).join('');
 }
 
 function buildCardHTML(sprite, obtained, mastered) {
@@ -682,6 +938,8 @@ function getRarityGradient(rarity, theme) {
         Rift: ['#154b5e', '#04161c'],
         Quack: ['#322554', '#12091f'],
         Cheat: ['#003b00', '#000800'],
+        Fortune: ['#0f5132', '#03180e'],
+        Cursed: ['#3b0a2a', '#12020c'],
     };
     return themes[theme] || themes.Basic;
 }
@@ -1425,9 +1683,7 @@ function copyText(text, successMsg, errorMsg) {
 function bindEvents() {
     /* Image error delegation (using capture phase since error does not bubble) */
     dom.grid.addEventListener('error', (e) => {
-        if (e.target.tagName === 'IMG') {
-            e.target.style.opacity = '0.2';
-        }
+        if (e.target.tagName === 'IMG') handleMissingImage(e.target);
     }, true);
 
     /* Grid - event delegation */
@@ -1471,11 +1727,44 @@ function bindEvents() {
         renderGrid();
     });
 
-    /* Season filter */
-    dom.seasonFilter.addEventListener('change', () => {
-        state.filters.season = dom.seasonFilter.value;
-        persist(KEYS.season, state.filters.season);
-        renderGrid();
+    /* Season picker (picture dropdown) */
+    dom.seasonToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setSeasonPickerOpen(!dom.seasonPicker.classList.contains('open'));
+    });
+    dom.seasonMenu.addEventListener('click', (e) => {
+        const option = e.target.closest('.season-option');
+        if (!option) return;
+        setSeason(option.dataset.season);
+        setSeasonPickerOpen(false);
+        dom.seasonToggle.focus();
+    });
+    dom.seasonMenu.addEventListener('keydown', (e) => {
+        const options = [...dom.seasonMenu.querySelectorAll('.season-option')];
+        const idx = options.indexOf(document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); options[Math.min(idx + 1, options.length - 1)].focus(); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); options[Math.max(idx - 1, 0)].focus(); }
+        if (e.key === 'Escape') { setSeasonPickerOpen(false); dom.seasonToggle.focus(); }
+    });
+    document.addEventListener('click', (e) => {
+        if (!dom.seasonPicker.contains(e.target)) setSeasonPickerOpen(false);
+    });
+
+    /* Main tabs */
+    dom.mainTabs.addEventListener('click', (e) => {
+        const tab = e.target.closest('button.tab');
+        if (!tab) return;
+        showTab(tab.dataset.tab);
+    });
+    window.addEventListener('hashchange', () => showTab(tabFromHash(), false));
+    [dom.spriteIndex, dom.seasonCards].forEach(el => el.addEventListener('error', (e) => {
+        if (e.target.tagName === 'IMG') handleMissingImage(e.target);
+    }, true));
+    dom.seasonCards.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-goto-season]');
+        if (!btn) return;
+        setSeason(btn.dataset.gotoSeason);
+        showTab('collection');
     });
 
    
@@ -1739,9 +2028,12 @@ function init() {
     }
 
     populateThemeFilter();
+    renderSeasonMenu();
     applyStateToDOM();
     renderGrid();
     bindEvents();
+    if (state.viewMode) dom.mainTabs.hidden = true;
+    showTab(tabFromHash(), false);
     checkUnredeemedCodes();
 }
 

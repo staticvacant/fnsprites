@@ -222,4 +222,77 @@ const baseSprites = [
 	{ id: "dumpster_basic", name: "Dumpster Dive", theme: "Basic", rarity: "Mythic", unreleased: true, season: "Override" },
 	{ id: "bullet_basic", name: "Bullet", theme: "Basic", rarity: "Mythic", unreleased: true, season: "Override" },
 
+	// sprites season 3 - Treasure Hunters
+
+    { id: "halfpeeld_basic", name: "Halfpeel'd", theme: "Basic", rarity: "Rare", unreleased: false, season: "Treasure Hunters" },
+    { id: "halfpeeld_fortune", name: "Fortune Halfpeel'd", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "halfpeeld_cursed", name: "Cursed Halfpeel'd", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "halfpeeld_gold", name: "Gold Halfpeel'd", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "repete_basic", name: "Re-Pete", theme: "Basic", rarity: "Rare", unreleased: false, season: "Treasure Hunters" },
+    { id: "repete_fortune", name: "Fortune Re-Pete", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "repete_cursed", name: "Cursed Re-Pete", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "repete_gold", name: "Gold Re-Pete", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "barryofish_basic", name: "Barry O'Fish", theme: "Basic", rarity: "Rare", unreleased: false, season: "Treasure Hunters" },
+    { id: "barryofish_fortune", name: "Fortune Barry O'Fish", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "barryofish_cursed", name: "Cursed Barry O'Fish", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "barryofish_gold", name: "Gold Barry O'Fish", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "wayfinder_basic", name: "Wayfinder", theme: "Basic", rarity: "Rare", unreleased: false, season: "Treasure Hunters" },
+    { id: "wayfinder_fortune", name: "Fortune Wayfinder", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "wayfinder_cursed", name: "Cursed Wayfinder", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "wayfinder_gold", name: "Gold Wayfinder", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "exmarks_basic", name: "Exmarks", theme: "Basic", rarity: "Epic", unreleased: false, season: "Treasure Hunters" },
+    { id: "exmarks_fortune", name: "Fortune Exmarks", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "exmarks_cursed", name: "Cursed Exmarks", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "exmarks_gold", name: "Gold Exmarks", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "chester_basic", name: "Chester", theme: "Basic", rarity: "Epic", unreleased: false, season: "Treasure Hunters" },
+    { id: "chester_fortune", name: "Fortune Chester", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "chester_cursed", name: "Cursed Chester", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "chester_gold", name: "Gold Chester", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "kelper_basic", name: "Kelper", theme: "Basic", rarity: "Epic", unreleased: false, season: "Treasure Hunters" },
+    { id: "kelper_fortune", name: "Fortune Kelper", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "kelper_cursed", name: "Cursed Kelper", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "kelper_gold", name: "Gold Kelper", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "squibbly_basic", name: "Lil' Squibbly", theme: "Basic", rarity: "Epic", unreleased: false, season: "Treasure Hunters" },
+    { id: "squibbly_fortune", name: "Fortune Lil' Squibbly", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "squibbly_cursed", name: "Cursed Lil' Squibbly", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "squibbly_gold", name: "Gold Lil' Squibbly", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "squiplash_basic", name: "Squiplash", theme: "Basic", rarity: "Epic", unreleased: false, season: "Treasure Hunters" },
+    { id: "squiplash_fortune", name: "Fortune Squiplash", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "squiplash_cursed", name: "Cursed Squiplash", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "squiplash_gold", name: "Gold Squiplash", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "flacko_basic", name: "Lil' Flacko", theme: "Basic", rarity: "Legendary", unreleased: false, season: "Treasure Hunters" },
+    { id: "flacko_fortune", name: "Fortune Lil' Flacko", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "flacko_cursed", name: "Cursed Lil' Flacko", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "flacko_gold", name: "Gold Lil' Flacko", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "uzivert_basic", name: "Lil' Uzi Vert Jr.", theme: "Basic", rarity: "Legendary", unreleased: false, season: "Treasure Hunters" },
+    { id: "uzivert_fortune", name: "Fortune Lil' Uzi Vert Jr.", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "uzivert_cursed", name: "Cursed Lil' Uzi Vert Jr.", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "uzivert_gold", name: "Gold Lil' Uzi Vert Jr.", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "snail_basic", name: "Transponder Snail", theme: "Basic", rarity: "Legendary", unreleased: false, season: "Treasure Hunters" },
+
+    { id: "plundarrgh_basic", name: "Plundarrgh", theme: "Basic", rarity: "Mythic", unreleased: false, season: "Treasure Hunters" },
+    { id: "plundarrgh_fortune", name: "Fortune Plundarrgh", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "plundarrgh_cursed", name: "Cursed Plundarrgh", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "plundarrgh_gold", name: "Gold Plundarrgh", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "sweetdreams_basic", name: "Sweet Dreams", theme: "Basic", rarity: "Mythic", unreleased: false, season: "Treasure Hunters" },
+
+    { id: "minimiku_basic", name: "Mini Miku", theme: "Basic", rarity: "Mythic", unreleased: false, season: "Treasure Hunters" },
+    { id: "minimiku_fortune", name: "Fortune Mini Miku", theme: "Fortune", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "minimiku_cursed", name: "Cursed Mini Miku", theme: "Cursed", rarity: "Special", unreleased: false, season: "Treasure Hunters" },
+    { id: "minimiku_gold", name: "Gold Mini Miku", theme: "Gold", rarity: "Special", unreleased: true, season: "Treasure Hunters" },
+
+    { id: "zee_basic", name: "Zee", theme: "Basic", rarity: "Mythic", unreleased: false, season: "Treasure Hunters" },
+
 ];
