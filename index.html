@@ -45,6 +45,15 @@
         </div>
     </header>
 
+    <nav class="tabs" id="mainTabs" aria-label="Sections">
+        <button type="button" class="tab active" data-tab="collection">My Collection</button>
+        <button type="button" class="tab" data-tab="index">Sprite Index</button>
+        <button type="button" class="tab" data-tab="seasons">Seasons &amp; Styles</button>
+        <a href="codes.html" class="tab btn-codes" id="codesBtn">Lobby Hacks<span class="notification-dot" id="codesNotification" hidden></span></a>
+        <a href="season-info.html" class="tab">Season Info</a>
+    </nav>
+
+    <section class="view" id="view-collection">
     <nav class="toolbar">
         <div class="toolbar-row">
             <label class="sr-only" for="searchInput">Search sprites</label>
@@ -53,12 +62,14 @@
             <select id="themeFilter" class="select">
                 <option value="all">All Themes</option>
             </select>
-            <label class="sr-only" for="seasonFilter">Filter by Season</label>
-            <select id="seasonFilter" class="select">
-                <option value="all">All Seasons</option>
-                <option value="Runners">Runners - C7S3</option>
-                <option value="Override">Override - C7S4</option>
-            </select>
+            <div class="season-picker" id="seasonPicker">
+                <button type="button" class="season-picker-toggle" id="seasonToggle" aria-haspopup="listbox" aria-expanded="false" aria-label="Filter by season">
+                    <img src="siteimages/staticsprite.png" alt="" class="season-picker-icon" id="seasonToggleIcon">
+                    <span id="seasonToggleLabel">All Seasons</span>
+                    <svg class="season-picker-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+                </button>
+                <div class="season-picker-menu" id="seasonMenu" role="listbox" aria-label="Seasons"></div>
+            </div>
             <label class="sr-only" for="sortOrder">Sort Sprites</label>
             <select id="sortOrder" class="select">
                 <option value="theme">Group by Theme</option>
@@ -80,8 +91,6 @@
                 <label class="switch" id="exportModeSwitch"><input type="checkbox" id="openExports"><span>Download Exports</span></label>
             </div>
             <div class="actions">
-                <a href="codes.html" class="btn btn-codes" id="codesBtn">Lobby Hacks<span class="notification-dot" id="codesNotification" hidden></span></a>
-                <a href="season-info.html" class="btn btn-info" id="infoBtn">Season Info</a>
                 <div class="dropdown" id="exportDropdown">
                     <button type="button" class="btn" id="exportToggle" aria-haspopup="true" aria-expanded="false">Export</button>
                     <div class="dropdown-menu" aria-label="Export options">
@@ -110,6 +119,23 @@
     </nav>
 
     <main class="grid" id="spriteGrid" aria-label="Sprites collection"></main>
+    </section>
+
+    <section class="view" id="view-index" hidden>
+        <div class="view-intro">
+            <h2>Sprite Index</h2>
+            <p>Every sprite from every season, with all of its styles. Faded styles are not out yet.</p>
+        </div>
+        <div id="spriteIndex"></div>
+    </section>
+
+    <section class="view" id="view-seasons" hidden>
+        <div class="view-intro">
+            <h2>Seasons &amp; Styles</h2>
+            <p>Every sprite season so far and the styles each one brought.</p>
+        </div>
+        <div id="seasonCards" class="season-cards"></div>
+    </section>
     <footer class="support-footer">
     <p class="support-message">
         Please subscribe to<button type="button" class="btn-copy-code" id="supportCodeBtn">treatYTT</button> on youtube<a href="https://youtube.com/@treatytt?si=3u6LiZlNrqDRBQFk" target="_blank" rel="noopener noreferrer" class="item-shop-link"> Just click me!</a>.

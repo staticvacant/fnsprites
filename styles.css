@@ -1292,3 +1292,275 @@ body.low-fidelity .card.theme-Cheat::before {
         width: 100%;
         min-height: 40px;
     }
+}
+
+/* ===================================================
+   Tabs (Sprite Catch style)
+   =================================================== */
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: var(--gap-lg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: color var(--ease), background var(--ease);
+}
+.tab:hover { color: var(--text); background: var(--surface); }
+.tab.active { color: var(--text); }
+.tab.active::after {
+    content: '';
+    position: absolute;
+    left: 10px; right: 10px; bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--unmastered);
+    box-shadow: 0 0 10px var(--unmastered);
+}
+.tab.btn-hack-active { outline-offset: -4px; }
+
+.view-intro { margin-bottom: var(--gap-lg); }
+.view-intro h2 { font-size: 26px; font-weight: 700; letter-spacing: 0.02em; }
+.view-intro p { color: var(--text-soft); font-size: 14px; margin-top: 4px; }
+
+/* ===================================================
+   Season picker (picture dropdown)
+   =================================================== */
+
+.season-picker { position: relative; }
+
+.season-picker-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 10px 0 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color var(--ease);
+}
+.season-picker-toggle:hover, .season-picker.open .season-picker-toggle { border-color: var(--border-hover); }
+.season-picker-icon { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.season-picker-caret { width: 16px; height: 16px; fill: var(--text-soft); transition: transform var(--ease); }
+.season-picker.open .season-picker-caret { transform: rotate(180deg); }
+
+.season-picker-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 300px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all var(--ease);
+    z-index: 120;
+}
+.season-picker.open .season-picker-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.season-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 2px solid transparent;
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--surface);
+    isolation: isolate;
+    transition: border-color var(--ease), transform var(--ease);
+}
+.season-option::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(90deg, rgba(11, 13, 20, 0.92) 30%, rgba(11, 13, 20, 0.35)), var(--banner, none);
+    background-size: cover;
+    background-position: center;
+    transition: transform var(--ease-slow);
+}
+.season-option:hover::before, .season-option:focus-visible::before { transform: scale(1.05); }
+.season-option:hover, .season-option:focus-visible { border-color: var(--border-hover); outline: none; }
+.season-option.selected { border-color: var(--unmastered); }
+.season-option-icon { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+.season-option-text { display: flex; flex-direction: column; line-height: 1.2; }
+.season-option-text strong { font-size: 16px; font-weight: 700; text-shadow: 0 1px 4px #000; }
+.season-option-text small { font-size: 12px; color: var(--text-soft); }
+
+/* ===================================================
+   Divided grid
+   =================================================== */
+
+.season-divider {
+    grid-column: 1 / -1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    margin-top: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-hover);
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--surface);
+}
+.season-divider:first-child { margin-top: 0; }
+.season-divider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(90deg, rgba(11, 13, 20, 0.95) 25%, rgba(11, 13, 20, 0.45)), var(--banner, none);
+    background-size: cover;
+    background-position: center 35%;
+}
+.season-divider-icon { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,.6); }
+.season-divider-text { flex: 1; min-width: 0; }
+.season-divider-text h2 { font-size: 24px; font-weight: 700; line-height: 1.1; text-shadow: 0 2px 6px #000; }
+.season-divider-tag { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--unmastered); }
+.season-divider-count { width: 140px; display: flex; flex-direction: column; gap: 6px; text-align: right; font-size: 14px; }
+
+.group-divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-top: 6px;
+}
+.group-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.grid-empty { grid-column: 1 / -1; text-align: center; color: var(--text-soft); padding: 40px 0; }
+
+img.img-missing { opacity: 0.25; filter: grayscale(1); }
+
+/* New Treasure Hunters styles */
+.rarity-Special.theme-Fortune .card-display { background: linear-gradient(180deg, #0f5132, #03180e); }
+.rarity-Special.theme-Cursed .card-display { background: linear-gradient(180deg, #3b0a2a, #12020c); }
+body.low-fidelity .rarity-Special.theme-Fortune .card-display { background: #0f5132; }
+body.low-fidelity .rarity-Special.theme-Cursed .card-display { background: #3b0a2a; }
+
+/* ===================================================
+   Sprite Index
+   =================================================== */
+
+.index-season { margin-bottom: 28px; }
+.index-season .season-divider { margin: 0 0 var(--gap); }
+.index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--gap); }
+
+.index-card {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.index-art {
+    width: 76px; height: 76px; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, var(--rare), var(--rare-deep));
+}
+.index-card.rarity-Epic .index-art { background: linear-gradient(180deg, var(--epic), var(--epic-deep)); }
+.index-card.rarity-Legendary .index-art { background: linear-gradient(180deg, var(--legendary), var(--legendary-deep)); }
+.index-card.rarity-Mythic .index-art { background: linear-gradient(180deg, var(--mythic), var(--mythic-deep)); }
+.index-art img { max-width: 88%; max-height: 88%; object-fit: contain; }
+.index-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.index-body h4 { font-size: 17px; font-weight: 700; line-height: 1.1; }
+.index-rarity { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rare-text); }
+.index-card.rarity-Epic .index-rarity { color: var(--epic-text); }
+.index-card.rarity-Legendary .index-rarity { color: var(--legendary-text); }
+.index-card.rarity-Mythic .index-rarity { color: var(--mythic-text); }
+.index-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.index-owned { font-size: 12px; color: var(--text-muted); }
+
+.style-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-pill);
+    background: var(--surface-overlay);
+    border: 1px solid var(--border-hover);
+    white-space: nowrap;
+}
+.style-chip.owned { border-color: var(--collected); color: var(--collected); }
+.style-chip.upcoming { opacity: 0.4; border-style: dashed; }
+.chip-Gold { background: #61460b; }
+.chip-Candy { background: #6b183f; }
+.chip-Galaxy { background: #1f1145; }
+.chip-Gem { background: #114c47; }
+.chip-Holofoil { background: #204454; }
+.chip-Cube, .chip-Rift { background: #4c1d95; }
+.chip-Quack { background: #322554; }
+.chip-Cheat { background: #003b00; }
+.chip-Fortune { background: #0f5132; }
+.chip-Cursed { background: #3b0a2a; }
+
+/* ===================================================
+   Seasons & Styles
+   =================================================== */
+
+.season-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--gap-lg); }
+.season-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+.season-card-banner { position: relative; aspect-ratio: 16 / 9; background: var(--surface-raised); }
+.season-card-banner > img:first-child { width: 100%; height: 100%; object-fit: cover; display: block; }
+.season-card-icon { position: absolute; left: 14px; bottom: -26px; width: 56px; height: 56px; border-radius: 50%; border: 3px solid var(--surface); }
+.season-card-body { padding: 34px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.season-card-body h3 { font-size: 24px; font-weight: 700; }
+.season-card-stats { font-size: 14px; color: var(--text-soft); }
+.season-card-stats strong { color: var(--text); }
+.style-list { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-soft); flex: 1; }
+.style-list li { display: flex; gap: 8px; align-items: baseline; }
+.style-list li .style-chip { min-width: 70px; text-align: center; color: var(--text); }
+.style-list li.upcoming .style-chip { opacity: 0.5; border-style: dashed; }
+.style-list em { color: var(--mastered); font-style: normal; }
+.season-card .btn { align-self: flex-start; margin-top: 6px; }
+
+@media (max-width: 640px) {
+    .season-divider { padding: 10px 12px; gap: 10px; }
+    .season-divider-icon { width: 40px; height: 40px; }
+    .season-divider-text h2 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .season-divider-count { width: 64px; flex-shrink: 0; font-size: 12px; }
+    .season-picker { flex: 1; min-width: 160px; }
+    .season-picker-toggle { width: 100%; min-height: 44px; }
+    .tab { padding: 10px 12px; font-size: 14px; }
+}
