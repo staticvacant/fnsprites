@@ -32,6 +32,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Validar integridade de assets offline no bundle PWA
+        run: node scripts/download-offline-assets.js --verify --verify-dist
 
       - name: Configurar GitHub Pages
         if: github.event_name != 'pull_request'

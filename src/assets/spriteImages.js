@@ -2,8 +2,8 @@
    Mapeamento de Imagens Estáticas para o Vite
    ===================================================
    Utiliza `import.meta.glob` com `eager: true` para gerar URLs com hash
-   de cada sprite `.webp` da pasta `/sprites/`. Isso garante invalidação
-   automática de cache (`CacheFirst` em runtime no Workbox) e fallback
+   de cada sprite `.webp` da pasta `/sprites/`. Isso garante pré-cache
+   offline com hash e invalidação automática via Workbox e fallback
    síncrono para `sprite_unreal.webp` sem disparar requisições 404.
    =================================================== */
 

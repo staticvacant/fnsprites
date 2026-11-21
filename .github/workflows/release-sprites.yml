@@ -1,36 +1,67 @@
-name: Lançar Elementais
+name: Lançar Elementais e Atualizar Assets Offline
 
 on:
+  schedule:
+    # Terças e quintas às 12:00 UTC (após atualizações habituais do Fortnite)
+    - cron: '0 12 * * 2,4'
   workflow_dispatch:
     inputs:
-      ids:
-        description: 'IDs dos elementais (separados por vírgula). Aceita curinga: bush_*, *_tricktreat'
+      mode:
+        description: 'Modo de seleção'
         required: true
+        default: all-unreleased
+        type: choice
+        options:
+          - all-unreleased
+          - ids
+          - season
+          - sync-offline-only
+      ids:
+        description: 'IDs dos elementais (usado no modo ids; aceita curinga: bush_*, *_tricktreat)'
+        required: false
+        default: ''
+        type: string
+      season:
+        description: 'Temporada alvo (usado no modo season ou filtro opcional; ex.: C7T5)'
+        required: false
+        default: ''
         type: string
       action:
-        description: 'Ação a executar'
+        description: 'Ação em sprites-data.js'
         required: true
         default: release
         type: choice
         options:
           - release
           - unrelease
+      require_asset:
+        description: 'Só lançar se sprites/<id>.webp existir'
+        required: false
+        default: true
+        type: boolean
+      sync_offline_assets:
+        description: 'Baixar/atualizar fontes locais e auditar assets offline'
+        required: false
+        default: true
+        type: boolean
       dry_run:
-        description: 'Apenas simular (não faz commit)'
+        description: 'Apenas simular (não abre Pull Request)'
         required: false
         default: false
         type: boolean
 
+permissions:
+  contents: write
+  pull-requests: write
+
 concurrency:
-  group: release-sprites
+  group: release-sprites-automation
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Atualizar estado dos elementais
+  release-and-offline:
+    name: Lançar elementais e preparar assets offline
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
@@ -45,47 +76,144 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
-      - name: Atualizar sprites-data.js
-        id: update
+      - name: Resolver parâmetros de execução
+        id: params
         env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
           INPUT_IDS: ${{ inputs.ids }}
+          INPUT_SEASON: ${{ inputs.season }}
           INPUT_ACTION: ${{ inputs.action }}
+          INPUT_REQUIRE_ASSET: ${{ inputs.require_asset }}
+          INPUT_SYNC_OFFLINE: ${{ inputs.sync_offline_assets }}
           INPUT_DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          ARGS=(--ids "$INPUT_IDS" --action "$INPUT_ACTION")
-          if [ "$INPUT_DRY_RUN" = "true" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "mode=all-unreleased" >> "$GITHUB_OUTPUT"
+            echo "ids=" >> "$GITHUB_OUTPUT"
+            echo "season=" >> "$GITHUB_OUTPUT"
+            echo "action=release" >> "$GITHUB_OUTPUT"
+            echo "require_asset=true" >> "$GITHUB_OUTPUT"
+            echo "sync_offline=true" >> "$GITHUB_OUTPUT"
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+            echo "is_draft=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=${INPUT_MODE:-all-unreleased}" >> "$GITHUB_OUTPUT"
+            {
+              echo "ids<<EOF_IDS"
+              printf '%s\n' "$INPUT_IDS"
+              echo "EOF_IDS"
+            } >> "$GITHUB_OUTPUT"
+            echo "season=$INPUT_SEASON" >> "$GITHUB_OUTPUT"
+            echo "action=${INPUT_ACTION:-release}" >> "$GITHUB_OUTPUT"
+            echo "require_asset=${INPUT_REQUIRE_ASSET:-true}" >> "$GITHUB_OUTPUT"
+            echo "sync_offline=${INPUT_SYNC_OFFLINE:-true}" >> "$GITHUB_OUTPUT"
+            echo "dry_run=${INPUT_DRY_RUN:-false}" >> "$GITHUB_OUTPUT"
+            echo "is_draft=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Baixar e auditar assets offline
+        id: offline
+        if: ${{ steps.params.outputs.sync_offline == 'true' }}
+        run: node scripts/download-offline-assets.js --sync-fonts --skip-if-offline --verify
+
+      - name: Atualizar sprites-data.js
+        id: update
+        if: ${{ steps.params.outputs.mode != 'sync-offline-only' }}
+        env:
+          MODE: ${{ steps.params.outputs.mode }}
+          IDS: ${{ steps.params.outputs.ids }}
+          SEASON: ${{ steps.params.outputs.season }}
+          ACTION: ${{ steps.params.outputs.action }}
+          REQUIRE_ASSET: ${{ steps.params.outputs.require_asset }}
+          DRY_RUN: ${{ steps.params.outputs.dry_run }}
+        run: |
+          ARGS=(--mode "$MODE" --action "$ACTION")
+          if [ -n "$IDS" ]; then
+            ARGS+=(--ids "$IDS")
+          fi
+          if [ -n "$SEASON" ]; then
+            ARGS+=(--season "$SEASON")
+          fi
+          if [ "$REQUIRE_ASSET" = "true" ]; then
+            ARGS+=(--require-asset)
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
             ARGS+=(--dry-run)
           fi
           node scripts/release-sprites.js "${ARGS[@]}"
 
-      - name: Validar sintaxe, lint e testes
+      - name: Validar sintaxe, lint, testes e build offline
+        id: validate
         run: |
           node --check src/data/sprites-data.js
           npm run lint
           npm test
+          npm run build
+          node scripts/download-offline-assets.js --verify --verify-dist
 
-      - name: Commit e push
-        if: ${{ !inputs.dry_run && steps.update.outputs.changed_count != '0' }}
+      - name: Montar descrição do Pull Request
+        if: ${{ steps.params.outputs.dry_run != 'true' }}
+        id: pr_meta
         env:
-          INPUT_ACTION: ${{ inputs.action }}
-          CHANGED_IDS: ${{ steps.update.outputs.changed_ids }}
-          CHANGED_COUNT: ${{ steps.update.outputs.changed_count }}
+          EVENT_NAME: ${{ github.event_name }}
+          CHANGED_COUNT: ${{ steps.update.outputs.changed_count || '0' }}
+          CHANGED_IDS: ${{ steps.update.outputs.changed_ids || '' }}
+          SKIPPED_IDS: ${{ steps.update.outputs.skipped_ids || '' }}
+          FONTS_CHANGED: ${{ steps.offline.outputs.fonts_changed || 'false' }}
+          PRECACHE_COUNT: ${{ steps.validate.outputs.precache_count || '0' }}
+          PRECACHED_WEBPS: ${{ steps.validate.outputs.precached_webps || '0' }}
+          ACTION: ${{ steps.params.outputs.action }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if git diff --quiet -- src/data/sprites-data.js; then
-            echo "Nenhuma alteração para commitar."
-            exit 0
-          fi
-
-          if [ "$INPUT_ACTION" = "release" ]; then
-            TITLE="feat: lançar $CHANGED_COUNT elemental(is)"
+          if [ "$CHANGED_COUNT" != "0" ] && [ "$FONTS_CHANGED" = "true" ]; then
+            if [ "$ACTION" = "release" ]; then
+              TITLE="feat: lançar $CHANGED_COUNT elemental(is) e atualizar assets offline"
+            else
+              TITLE="chore: ocultar $CHANGED_COUNT elemental(is) e atualizar assets offline"
+            fi
+          elif [ "$CHANGED_COUNT" != "0" ]; then
+            if [ "$ACTION" = "release" ]; then
+              TITLE="feat: lançar $CHANGED_COUNT elemental(is)"
+            else
+              TITLE="chore: marcar $CHANGED_COUNT elemental(is) como não lançado(s)"
+            fi
           else
-            TITLE="chore: marcar $CHANGED_COUNT elemental(is) como não lançado(s)"
+            TITLE="chore: atualizar assets e pré-cache offline PWA"
           fi
 
-          git add src/data/sprites-data.js
-          git commit -m "$TITLE" -m "IDs: ${CHANGED_IDS//,/, }"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          BODY_FILE="${RUNNER_TEMP}/pr-body.md"
+          {
+            echo "## Resumo da automação (\`${EVENT_NAME}\`)"
+            echo ""
+            if [ "$CHANGED_COUNT" != "0" ]; then
+              echo "- **Elementais alterados (${CHANGED_COUNT}):** \`${CHANGED_IDS//,/\`, \`}\`"
+            else
+              echo "- **Elementais alterados:** nenhum"
+            fi
+            if [ -n "$SKIPPED_IDS" ]; then
+              echo "- **Ignorados sem imagem \`.webp\`:** \`${SKIPPED_IDS//,/\`, \`}\`"
+            fi
+            echo "- **Fontes Roboto locais atualizadas:** \`${FONTS_CHANGED}\`"
+            echo "- **Pré-cache Workbox (\`dist/sw.js\`):** ${PRECACHE_COUNT} entradas (${PRECACHED_WEBPS} WebPs)"
+            echo ""
+            echo "Ao fazer **merge**, o workflow de deploy (\`main.yml\`) publicará automaticamente no GitHub Pages."
+          } > "$BODY_FILE"
+
+          {
+            echo "title=$TITLE"
+            echo "body<<EOF_PR_BODY"
+            cat "$BODY_FILE"
+            echo "EOF_PR_BODY"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Criar ou atualizar Pull Request
+        if: ${{ steps.params.outputs.dry_run != 'true' }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: ${{ steps.pr_meta.outputs.title }}
+          branch: automation/release-sprites-offline
+          delete-branch: true
+          title: ${{ steps.pr_meta.outputs.title }}
+          body: ${{ steps.pr_meta.outputs.body }}
+          draft: ${{ steps.params.outputs.is_draft == 'true' }}
+          labels: automation

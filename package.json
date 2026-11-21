@@ -11,7 +11,8 @@
     "lint": "eslint . && npm run typecheck",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "assets:offline": "node scripts/download-offline-assets.js --sync-fonts --verify"
   },
   "dependencies": {
     "react": "^19.3.1",
