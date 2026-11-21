@@ -16,7 +16,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const FONTS_CSS_URL = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap';
 const MODERN_UA =
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-const REQUIRED_SUBSETS = ['latin-ext', 'latin'];
+const REQUIRED_SUBSETS = ['latin'];
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export function parseArgs(argv) {
@@ -60,7 +60,7 @@ function setOutput(name, value) {
 }
 
 /**
- * Extrai apenas os blocos `@font-face` necessários (`latin-ext`, `latin`) da folha CSS do Google Fonts.
+ * Extrai apenas os blocos `@font-face` necessários (`latin`) da folha CSS do Google Fonts.
  * @param {string} cssText
  * @param {string[]} [subsets]
  */
@@ -129,7 +129,7 @@ function writeFileIfChanged(filePath, nextContent) {
 }
 
 /**
- * Baixa a fonte variável Roboto (latin + latin-ext) para `src/assets/fonts/`.
+ * Baixa a fonte variável Roboto (`latin`) para `src/assets/fonts/`.
  * Retorna `{ changed, skippedOffline, files }`.
  */
 export async function syncLocalFonts(rootDir = ROOT_DIR, { skipIfOffline = false } = {}) {
@@ -223,8 +223,9 @@ export async function verifySourceAssets(rootDir = ROOT_DIR) {
         path.join(rootDir, 'public', 'pwa-192x192.png'),
         path.join(rootDir, 'public', 'pwa-512x512.png'),
         path.join(rootDir, 'src', 'assets', 'fonts', 'roboto.css'),
-        path.join(rootDir, 'src', 'assets', 'fonts', 'roboto-latin.woff2'),
-        path.join(rootDir, 'src', 'assets', 'fonts', 'roboto-latin-ext.woff2'),
+        ...REQUIRED_SUBSETS.map(subset =>
+            path.join(rootDir, 'src', 'assets', 'fonts', `roboto-${subset}.woff2`)
+        ),
     ];
 
     const missingStatic = [];
@@ -286,7 +287,7 @@ export function verifyDistOfflineBundle(rootDir = ROOT_DIR) {
 
     const swContent = fs.readFileSync(swPath, 'utf8');
     const rawUrls = [];
-    for (const match of swContent.matchAll(/\{url:"([^"]+)"/g)) {
+    for (const match of swContent.matchAll(/\{\s*url\s*:\s*["']([^"']+)["']/g)) {
         rawUrls.push(match[1]);
     }
     const precacheUrls = new Set(rawUrls);
@@ -310,13 +311,21 @@ export function verifyDistOfflineBundle(rootDir = ROOT_DIR) {
     }
 
     const precachedFonts = [...precacheUrls].filter(u => /roboto-.*\.woff2$/i.test(u));
-    if (precachedFonts.length < 2) {
-        errors.push(`Esperadas >= 2 fontes Roboto (.woff2) no pré-cache, encontradas: ${precachedFonts.length}`);
+    if (precachedFonts.length < REQUIRED_SUBSETS.length) {
+        errors.push(
+            `Esperadas >= ${REQUIRED_SUBSETS.length} fonte(s) Roboto (.woff2) no pré-cache, encontradas: ${precachedFonts.length}`
+        );
     }
 
+    const expectedWebps = expectedAssetFiles.filter(file => /\.webp$/i.test(file));
+    if (expectedWebps.length === 0) {
+        errors.push('Nenhum arquivo .webp emitido em dist/.');
+    }
     const precachedWebps = [...precacheUrls].filter(u => /\.webp$/i.test(u));
-    if (precachedWebps.length < 100) {
-        errors.push(`Quantidade baixa de sprites .webp no pré-cache (${precachedWebps.length}).`);
+    if (precachedWebps.length < expectedWebps.length) {
+        errors.push(
+            `Cobertura incompleta de sprites .webp no pré-cache (${precachedWebps.length}/${expectedWebps.length}).`
+        );
     }
 
     return {

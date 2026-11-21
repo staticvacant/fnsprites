@@ -205,6 +205,9 @@ export function planSpriteReleases(sourceText, options = {}) {
     if (mode === 'season' && !season) {
         throw new Error('Informe --season ao usar --mode season.');
     }
+    if (mode === 'all-unreleased' && action === 'unrelease') {
+        throw new Error('O modo "all-unreleased" só pode ser usado com --action release.');
+    }
 
     const patterns = mode === 'ids' ? parsePatterns(ids) : ids.trim() ? parsePatterns(ids) : [];
     if (mode === 'ids' && patterns.length === 0) {
@@ -250,7 +253,7 @@ export function planSpriteReleases(sourceText, options = {}) {
                 selected = seasonMatches;
             }
         } else if (mode === 'all-unreleased') {
-            selected = seasonMatches && info.current === (action === 'release' ? 'true' : 'false');
+            selected = seasonMatches && info.current === 'true';
         } else if (mode === 'season') {
             selected = seasonMatches;
         }
@@ -289,9 +292,15 @@ export function planSpriteReleases(sourceText, options = {}) {
         const { info } = entry;
 
         if (mode === 'clear-new') {
+            const matchedByPattern =
+                patterns.length === 0
+                    ? []
+                    : matchers.filter(m => info.lineIds.some(id => m.regex.test(id)));
+            if (matchedByPattern.length > 0) {
+                matchedByPattern.forEach(m => m.hits++);
+            }
             const matchesScope = !season || info.season === season;
-            const matchesPattern =
-                patterns.length === 0 || matchers.some(m => info.lineIds.some(id => m.regex.test(id)));
+            const matchesPattern = patterns.length === 0 || matchedByPattern.length > 0;
             if (matchesScope && matchesPattern && info.hasIsNewProp) {
                 clearedNew.push(info.primaryId);
                 return updateIsNewOnLine(entry.nextLine, false);
@@ -318,7 +327,10 @@ export function planSpriteReleases(sourceText, options = {}) {
         return entry.nextLine;
     });
 
-    const notFound = mode === 'ids' ? matchers.filter(m => m.hits === 0).map(m => m.pattern) : [];
+    const notFound =
+        mode === 'ids' || (mode === 'clear-new' && patterns.length > 0)
+            ? matchers.filter(m => m.hits === 0).map(m => m.pattern)
+            : [];
 
     return {
         updatedText: updatedLines.join('\n'),
