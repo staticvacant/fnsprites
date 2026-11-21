@@ -15,42 +15,47 @@ fnpituchinhubr/
 │   ├── favicon.webp            # Ícone do site
 │   ├── pwa-192x192.png         # Ícone do manifesto PWA (192x192)
 │   └── pwa-512x512.png         # Ícone do manifesto PWA (512x512)
-├── package.json                # Scripts: dev, build, preview, lint, typecheck, test
+├── package.json                # Scripts: dev, build, preview, lint, typecheck, test, assets:offline
 ├── tsconfig.json               # Configuração checkJs (--noEmit, strictNullChecks) para JS/JSX
-├── vite.config.js              # Vite + plugin React + VitePWA + Vitest
+├── vite.config.js              # Vite 8 + React + preload Roboto + split react-vendor + VitePWA + Vitest
 ├── eslint.config.js            # ESLint 9 (flat config) com regras de React e Hooks
 ├── styles.css                  # Folha de estilos global + variáveis CSS por card
 ├── sprites/                    # Imagens .webp dos pituchinhus (otimizadas em 256x256)
 ├── scripts/
 │   ├── convert_webp.sh         # Conversão em lote PNG -> WebP (ffmpeg / cwebp / Pillow)
 │   ├── compress_webp.sh        # Compressão de imagens para WebP
-│   └── release-sprites.js      # Automação de lançamento em src/data/sprites-data.js
+│   ├── download-offline-assets.js # Sync de fontes Roboto locais e auditoria de origem/dist offline
+│   ├── release-sprites.js      # Automação de lançamento e selo isNew em src/data/sprites-data.js
+│   └── offline-assets.test.js  # Testes de release-sprites.js e download-offline-assets.js
 ├── .github/workflows/
-│   ├── main.yml                # CI/CD: lint + testes + build + deploy GitHub Pages
-│   └── release-sprites.yml     # Automação manual/agendada de sprites (Node 22 + CI checks)
+│   ├── main.yml                # CI/CD: lint + testes + build + auditoria offline + deploy GitHub Pages (main)
+│   └── release-sprites.yml     # Automação agendada/manual de sprites e assets offline com abertura de PR
 └── src/
-    ├── main.jsx                # Bootstrap do React (createRoot)
+    ├── main.jsx                # Bootstrap do React (createRoot) + fonte Roboto local
     ├── App.jsx                 # Raiz da aplicação (<CatalogPage />)
     ├── global.d.ts             # Declarações globais de tipos (Vite e gancho de teste)
     ├── pages/
     │   └── CatalogPage.jsx     # Página do catálogo: estado, filtros, grade, modais e exportações
     ├── components/
     │   ├── Header.jsx          # Cabeçalho e barras de progresso reativas
-    │   ├── FilterBar.jsx       # Busca, filtros responsivos (Desktop M3 / Mobile select) e ações
+    │   ├── FilterBar.jsx       # Busca, filtros responsivos (Desktop M3 / Mobile select, incl. "Novos") e ações
     │   ├── M3FilterMenu.jsx    # Dropdown estilo Material Design 3 para filtros desktop
     │   ├── ToolbarIcons.jsx    # Ícones SVG da barra de ferramentas
-    │   ├── SpriteCard.jsx      # Cartão reutilizável de pituchinhu (com fallback de imagem)
+    │   ├── SpriteCard.jsx      # Cartão reutilizável de pituchinhu (selos NOVO/Coletado/Dominado + fallback)
     │   ├── ModalDialog.jsx     # Invólucro acessível baseado em <dialog> nativo
     │   ├── ExportModal.jsx     # Modal de exportação/backup/compartilhamento (lazy)
     │   ├── BatchModal.jsx      # Modal de ações em lote por filtro, temporada ou família (lazy)
     │   ├── SettingsModal.jsx   # Modal de configurações (lazy)
     │   └── ControllerHud.jsx   # Guia de controles para navegação por gamepad
     ├── hooks/
-    │   ├── useTrackerState.js          # Estado, persistência incremental e filtros
+    │   ├── useTrackerState.js          # Estado, persistência incremental, filtros e isolamento em viewMode
     │   ├── useGamepadAndSpatialNav.js  # Navegação espacial e suporte a gamepad
     │   └── useMediaQuery.js            # Assinatura responsiva de media query via useSyncExternalStore
     ├── assets/
-    │   └── spriteImages.js     # Mapeamento de imagens .webp com import.meta.glob
+    │   ├── fonts/
+    │   │   ├── roboto.css              # @font-face auto-hospedado da fonte variável Roboto (latin)
+    │   │   └── roboto-latin.woff2      # Binário WOFF2 local pré-cacheado pelo Service Worker
+    │   └── spriteImages.js             # Mapeamento de imagens .webp com import.meta.glob
     ├── data/
     │   └── sprites-data.js     # `export const baseSprites`
     ├── taxonomy.js             # FONTE ÚNICA de temas, raridades, rótulos e cores (UI e Canvas)
@@ -439,8 +444,8 @@ navigate('/codes');
 | Ferramenta | Comando | O que cobre |
 |---|---|---|
 | ESLint 9 + `react` + `react-hooks` + TypeScript (`checkJs`) | `npm run lint` | Regras React/Hooks, variáveis não usadas e `tsc --noEmit` (`strictNullChecks: true`) |
-| Vitest + Testing Library | `npm test` | 7 suítes (87 testes): query/taxonomia/temporadas, codec de compartilhamento, exportação Canvas/texto, persistência/tema em `useTrackerState`, navegação por teclado/gamepad, fluxos de modais/backup/lote/`?c=` e renders/a11y/fallback |
-| GitHub Actions | `.github/workflows/main.yml` e `.github/workflows/release-sprites.yml` | Roda `lint`, `npm test` e `build` antes do deploy no Pages e em atualizações automatizadas de sprites (Node 22) |
+| Vitest + Testing Library | `npm test` | 8 suítes (102 testes): query/taxonomia/temporadas/Novos, codec de compartilhamento, exportação Canvas/texto, persistência/tema em `useTrackerState`, navegação por teclado/gamepad, fluxos de modais/backup/lote/`?c=`, renders/a11y/fallback e automação/auditoria offline (`scripts/offline-assets.test.js`) |
+| GitHub Actions | `.github/workflows/main.yml` e `.github/workflows/release-sprites.yml` | Roda `lint`, `npm test`, `build` e `--verify --verify-dist` antes do deploy no Pages (restrito à `main`) e em atualizações automatizadas de sprites/assets offline via PR (Node 22) |
 
 > **Nota:** o ESLint está fixado na versão 9 porque `eslint-plugin-react` ainda não declara suporte ao ESLint 10. O lint ajudou na própria refatoração: apontou os fallbacks `baseSprites` herdados do Vanilla JS e um bloco `catch` vazio.
 
@@ -448,13 +453,13 @@ navigate('/codes');
 
 **Marco histórico da migração inicial (`react`):** `npm run lint` sem erros, `npm test` (`23/23` testes) e `npm run build` com `337` módulos.
 
-**Estado atual na `main`:**
+**Estado atual (`2.2.0`):**
 
 | Verificação | Resultado observado |
 |---|---|
 | `npm run lint` | ESLint e `tsc --noEmit` (`strictNullChecks: true`) sem erros nem avisos |
-| `npm test` | 7 arquivos, 87 testes passando |
-| `npm run build` | 394 módulos transformados; CSS 34.94 kB (7.64 kB gzip); chunk principal `index-*.js` 355.26 kB (102.69 kB gzip); PWA com precache de 14 entradas (416.12 KiB) |
+| `npm test` | 8 arquivos, 102 testes passando |
+| `npm run build` | 382 módulos transformados (Vite 8.3.8); CSS `34.52 kB` (`7.74 kB` gzip); `index-*.js` `131.53 kB` (`33.07 kB` gzip) + `react-vendor-*.js` `218.77 kB` (`68.25 kB` gzip); PWA com precache offline completo de `354` entradas (`4095.41 KiB`) |
 
 ---
 

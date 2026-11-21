@@ -10,13 +10,13 @@ Site publicado: https://joaopedro-chaves.github.io/fnpituchinhubr/
 
 ## Visão Geral e Recursos
 
-Aplicação web construída com **React 19**, **Vite 6** e **PWA (`vite-plugin-pwa`)**, utilizando:
+Aplicação web construída com **React 19**, **Vite 8** e **PWA (`vite-plugin-pwa`)**, utilizando:
 
-- Catálogo filtrável por busca textual, tema/tipo, temporada (`C7T3`, `C7T4`, `C7T5` e futuras), status (`Todos`, `Coletados`, `Faltando`) e ordenação (`Categorias`, `Elementais`, `Nome`, `Raridade`).
-- Marcação de coleção (`Coletado`) e dominação (`Dominado`), com ações em lote (`Em lote` + desfazer atômico), persistência em `localStorage`, backup/restauração em JSON e compartilhamento via URL compactada (`?c=...`).
+- Catálogo filtrável por busca textual, tema/tipo (incluindo a categoria condicional `Novos` quando há adições recentes), temporada (`C7T3`, `C7T4`, `C7T5` e futuras), status (`Todos`, `Coletados`, `Faltando`) e ordenação (`Categorias`, `Elementais`, `Nome`, `Raridade`).
+- Marcação de coleção (`Coletado`) e dominação (`Dominado`), selo `NOVO` para lançamentos recentes, ações em lote (`Em lote` + desfazer atômico), persistência em `localStorage`, backup/restauração em JSON e compartilhamento via URL compactada (`?c=...`) em modo somente leitura isolado.
 - Exportação de cards em PNG (Canvas 2D) para coleção, faltantes, não dominados, dominados e lista de trocas, além de cópia em texto simples ou grade alinhada por família.
 - Suporte a tema escuro/claro, modo de desempenho simples (`low-fidelity`), navegação por teclado/gamepad e modais nativos com `<dialog>`.
-- Assets em formato WebP (sprites otimizados em `256x256`) e cache offline via Service Worker.
+- Assets em formato WebP (sprites otimizados em `256x256`), fonte `Roboto` (`latin`) auto-hospedada com `preload` e pré-cache offline completo via Service Worker (sem dependências externas em runtime).
 
 ## Desenvolvimento (React + Vite)
 

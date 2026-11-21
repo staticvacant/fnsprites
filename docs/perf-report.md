@@ -1,27 +1,30 @@
 # Relatório de Refatoração de Desempenho
 
-Relatório das otimizações de desempenho executadas inicialmente nas Fases 0 a 7 e seu estado consolidado após os refinamentos recentes na branch `main`.
+Relatório das otimizações de desempenho executadas inicialmente nas Fases 0 a 7 e seu estado consolidado até a release **`2.2.0`** (Vite 8 + PWA offline completo).
 
 ---
 
 ## 1. Comparativo de Chunks e Métricas (Antes vs. Depois)
 
-| Artefato / Métrica | Baseline (Fase 0 — `61427b7`) | Refatoração Perf (Fase 7 — `54a05ba`) | Estado Atual (`main`, pós-remediação) |
-| --- | ---: | ---: | ---: |
-| Chunk principal JS (`index-*.js`) | `347.35 kB` (`98.17 kB` gzip) | `341.19 kB` (`95.90 kB` gzip) | `355.26 kB` (`102.69 kB` gzip) |
-| Chunk sob demanda (`view-export-*.js`) | *embutido no principal* | `12.31 kB` (`4.76 kB` gzip) | `17.25 kB` (`6.45 kB` gzip) |
-| Chunk sob demanda (`share-codec-*.js`) | *embutido no principal* | *embutido no principal* | `6.74 kB` (`2.28 kB` gzip) |
-| CSS principal (`index-*.css`) | `34.20 kB` (`7.39 kB` gzip) | `30.62 kB` (`6.89 kB` gzip) | `34.94 kB` (`7.64 kB` gzip) |
-| HTML (`dist/index.html`) | `1.18 kB` (`0.61 kB` gzip) | `1.13 kB` (`0.59 kB` gzip) | `3.07 kB` (`1.00 kB` gzip) |
-| Precache Workbox (`dist/sw.js`) | `322` entradas (`6644.75 KiB`) | `323` entradas (`6647.21 KiB`) | `14` entradas (`416.12 KiB`) + WebP em runtime |
-| `npm run lint` | `0` erros | `0` erros | `0` erros (ESLint + `strictNullChecks`) |
-| `npm test` (Vitest) | `2` arquivos, `23` testes | `5` arquivos, `40` testes | `7` arquivos, `87` testes |
-| Catálogo (`baseSprites`) | `314` sprites | `314` sprites | `338` sprites |
+| Artefato / Métrica | Baseline (Fase 0 — `61427b7`) | Refatoração Perf (Fase 7 — `54a05ba`) | `main` (pós-remediação) | Estado Atual (`2.2.0`) |
+| --- | ---: | ---: | ---: | ---: |
+| Chunk principal JS (`index-*.js`) | `347.35 kB` (`98.17 kB` gzip) | `341.19 kB` (`95.90 kB` gzip) | `355.26 kB` (`102.69 kB` gzip) | `131.53 kB` (`33.07 kB` gzip) |
+| Chunk vendor React (`react-vendor-*.js`) | *embutido no principal* | *embutido no principal* | *embutido no principal* | `218.77 kB` (`68.25 kB` gzip) |
+| Chunk sob demanda (`view-export-*.js`) | *embutido no principal* | `12.31 kB` (`4.76 kB` gzip) | `17.25 kB` (`6.45 kB` gzip) | `16.73 kB` (`6.19 kB` gzip) |
+| Chunk sob demanda (`share-codec-*.js`) | *embutido no principal* | *embutido no principal* | `6.74 kB` (`2.28 kB` gzip) | `5.96 kB` (`2.15 kB` gzip) |
+| CSS principal (`index-*.css`) | `34.20 kB` (`7.39 kB` gzip) | `30.62 kB` (`6.89 kB` gzip) | `34.94 kB` (`7.64 kB` gzip) | `34.52 kB` (`7.74 kB` gzip) |
+| HTML (`dist/index.html`) | `1.18 kB` (`0.61 kB` gzip) | `1.13 kB` (`0.59 kB` gzip) | `3.07 kB` (`1.00 kB` gzip) | `2.71 kB` (`0.92 kB` gzip) |
+| Precache Workbox (`dist/sw.js`) | `322` entradas (`6644.75 KiB`) | `323` entradas (`6647.21 KiB`) | `14` entradas (`416.12 KiB`) + WebP em runtime | `354` entradas (`4095.41 KiB`, offline completo) |
+| `npm run lint` | `0` erros | `0` erros | `0` erros (ESLint + `strictNullChecks`) | `0` erros (ESLint + `strictNullChecks`) |
+| `npm test` (Vitest) | `2` arquivos, `23` testes | `5` arquivos, `40` testes | `7` arquivos, `87` testes | `8` arquivos, `102` testes |
+| Catálogo (`baseSprites`) | `314` sprites | `314` sprites | `338` sprites | `338` sprites (`13` com `isNew: true`) |
 
-> **Notas de evolução na `main`:**
-> - **Precache Workbox:** O `vite.config.js` restringiu o `globPatterns` do App Shell a `**/*.{js,css,html,svg}` e moveu os `.webp` de `dist/assets/` para `runtimeCaching` com estratégia `CacheFirst` (`sprite-images-v1`), reduzindo o precache inicial de ~`6.6 MiB` para **`416.12 KiB`** (`14` entradas).
-> - **Chunks sob demanda:** Além de [src/view-export.js](file:///home/radiant/DevHub/fnpituchinhubr/src/view-export.js) (agora modularizado com [src/export-text.js](file:///home/radiant/DevHub/fnpituchinhubr/src/export-text.js) e [src/export-palette.js](file:///home/radiant/DevHub/fnpituchinhubr/src/export-palette.js)), os modais (`ExportModal`, `BatchModal`, `SettingsModal`, `ModalDialog`) e [src/share-codec.js](file:///home/radiant/DevHub/fnpituchinhubr/src/share-codec.js) são carregados dinamicamente via `import()`.
-> - **Chunk JS principal na `main`:** Inclui a ampliação do catálogo para `338` sprites (e metadados de temporadas/lote), suporte de navegação e paginação incremental.
+> **Notas de evolução na `2.2.0`:**
+> - **Split de `react-vendor` (Vite 8 / Rolldown):** `vite.config.js` isola `react`, `react-dom` e `scheduler` via `build.rolldownOptions.output.codeSplitting.groups` (`react-vendor-*.js`, `68.25 kB` gzip). Atualizações frequentes em `src/data/sprites-data.js` invalidam apenas `index-*.js` (`33.07 kB` gzip) sem forçar re-download do React no Service Worker.
+> - **Fonte Roboto offline + `preload`:** Fonte variável `Roboto` auto-hospedada localmente em `src/assets/fonts/roboto-latin.woff2` (`43.13 kB`, subset `latin-ext` removido por ter 0 caracteres usados no projeto) com `<link rel="preload" as="font" type="font/woff2" ... crossorigin>` injetado automaticamente em `dist/index.html`, eliminando qualquer dependência externa do Google Fonts.
+> - **Precache Workbox completo:** Na `2.2.0`, o PWA voltou a pré-cachear 100% dos assets emitidos (`354` entradas / `4095.41 KiB`, incluindo todos os `.webp`, ícones PWA e `roboto-latin.woff2`) para funcionamento integral sem conexão, validado automaticamente em CI por `scripts/download-offline-assets.js --verify --verify-dist`.
+> - **Otimizações de runtime e UX:** [BatchModal.jsx](file:///home/radiant/DevHub/fnpituchinhubr/src/components/BatchModal.jsx) passou a resolver nomes de famílias em passagem única $O(N)$ (`getCharNameMap` + `resolveCharName`), e o modo compartilhado `?c=` (`viewMode`) em [useTrackerState.js](file:///home/radiant/DevHub/fnpituchinhubr/src/hooks/useTrackerState.js) inicia com filtros limpos em memória sem sobrescrever o `localStorage` do visitante.
+> - **Chunks sob demanda:** Além de [src/view-export.js](file:///home/radiant/DevHub/fnpituchinhubr/src/view-export.js) (modularizado com [src/export-text.js](file:///home/radiant/DevHub/fnpituchinhubr/src/export-text.js) e [src/export-palette.js](file:///home/radiant/DevHub/fnpituchinhubr/src/export-palette.js)), os modais (`ExportModal`, `BatchModal`, `SettingsModal`, `ModalDialog`) e [src/share-codec.js](file:///home/radiant/DevHub/fnpituchinhubr/src/share-codec.js) são carregados dinamicamente via `import()`.
 
 ---
 
