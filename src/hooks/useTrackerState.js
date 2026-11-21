@@ -15,6 +15,12 @@ import {
 } from '../query.js';
 
 const EMPTY_COLLECTION = { obtained: [], mastered: [] };
+const DEFAULT_FILTERS = {
+    search: '',
+    theme: 'all',
+    season: 'all',
+    status: 'all',
+};
 
 function readStoredArray(key) {
     try {
@@ -106,14 +112,15 @@ function getInitialSettings() {
  */
 export function useTrackerState(sprites) {
     // Lido uma única vez: se a URL tem ?c=..., já nasce em modo somente leitura
-    // com coleção vazia, evitando "piscar" a coleção local antes da compartilhada.
+    // com coleção vazia e filtros limpos em memória, evitando "piscar" dados locais
+    // ou ocultar sprites compartilhados por filtros salvos no navegador do visitante.
     const [initial] = useState(() => {
         const { hasShareParam, shareCode } = getShareInfo();
         return {
             hasShareParam,
             shareCode,
             collection: hasShareParam ? EMPTY_COLLECTION : getStoredCollection(sprites),
-            filters: getInitialFilters(sprites),
+            filters: hasShareParam ? { ...DEFAULT_FILTERS } : getInitialFilters(sprites),
             settings: getInitialSettings(),
         };
     });
@@ -130,6 +137,7 @@ export function useTrackerState(sprites) {
     const { obtained, mastered } = collection;
     const deferredSearch = useDeferredValue(filters.search);
 
+    const viewModeRef = useRef(initial.hasShareParam);
     const collectionRef = useRef(collection);
     const persistedCollectionRef = useRef(initial.collection);
     const persistedFiltersRef = useRef({
@@ -150,6 +158,7 @@ export function useTrackerState(sprites) {
         }
         if (!hasPendingSearchRef.current) return;
         hasPendingSearchRef.current = false;
+        if (viewModeRef.current) return;
         const nextSearch = pendingSearchRef.current;
         if (persistedSearchRef.current !== nextSearch) {
             persistedSearchRef.current = nextSearch;
@@ -201,7 +210,9 @@ export function useTrackerState(sprites) {
     }, [collection, viewMode]);
 
     // Persistência incremental: filtros imediatos (theme, season, status)
+    // Em viewMode, mantém alterações apenas em memória sem sobrescrever o localStorage do visitante.
     useEffect(() => {
+        if (viewMode) return;
         const prev = persistedFiltersRef.current;
         if (prev.theme !== filters.theme) persistValue(KEYS.theme, filters.theme);
         if (prev.season !== filters.season) persistValue(KEYS.season, filters.season);
@@ -211,10 +222,18 @@ export function useTrackerState(sprites) {
             season: filters.season,
             status: filters.status,
         };
-    }, [filters.theme, filters.season, filters.status]);
+    }, [filters.theme, filters.season, filters.status, viewMode]);
 
     // Persistência da busca com debounce de ~200 ms e flush garantido em saída/ocultamento
     useEffect(() => {
+        if (viewMode) {
+            if (searchDebounceRef.current !== null) {
+                clearTimeout(searchDebounceRef.current);
+                searchDebounceRef.current = null;
+            }
+            hasPendingSearchRef.current = false;
+            return;
+        }
         pendingSearchRef.current = filters.search;
         if (persistedSearchRef.current === filters.search) {
             if (searchDebounceRef.current !== null) {
@@ -230,7 +249,7 @@ export function useTrackerState(sprites) {
             clearTimeout(searchDebounceRef.current);
         }
         searchDebounceRef.current = setTimeout(flushPendingSearch, 200);
-    }, [filters.search, flushPendingSearch]);
+    }, [filters.search, viewMode, flushPendingSearch]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -393,16 +412,11 @@ export function useTrackerState(sprites) {
         }
         hasPendingSearchRef.current = false;
         pendingSearchRef.current = '';
-        if (persistedSearchRef.current !== '') {
+        if (!viewModeRef.current && persistedSearchRef.current !== '') {
             persistedSearchRef.current = '';
             persistValue(KEYS.search, '');
         }
-        setFilters({
-            search: '',
-            theme: 'all',
-            season: 'all',
-            status: 'all',
-        });
+        setFilters({ ...DEFAULT_FILTERS });
     }, []);
 
     const updateSetting = useCallback((key, value) => {
@@ -494,19 +508,36 @@ export function useTrackerState(sprites) {
         [sprites, viewMode]
     );
 
-    // Sai do modo somente leitura e volta para a coleção salva localmente
+    // Sai do modo somente leitura e volta para a coleção e filtros salvos localmente
     const exitViewMode = useCallback(() => {
         const url = new URL(window.location.href);
         url.searchParams.delete('c');
         window.history.replaceState({}, '', url.toString());
 
+        if (searchDebounceRef.current !== null) {
+            clearTimeout(searchDebounceRef.current);
+            searchDebounceRef.current = null;
+        }
+        hasPendingSearchRef.current = false;
+
         const restored = getStoredCollection(sprites);
+        const restoredFilters = getInitialFilters(sprites);
         persistedCollectionRef.current = restored;
         collectionRef.current = restored;
+        persistedFiltersRef.current = {
+            theme: restoredFilters.theme,
+            season: restoredFilters.season,
+            status: restoredFilters.status,
+        };
+        persistedSearchRef.current = restoredFilters.search;
+        pendingSearchRef.current = restoredFilters.search;
+        viewModeRef.current = false;
+
         setViewMode(false);
         setLoadingShared(false);
         setSharedError(null);
         setCollection(restored);
+        setFilters(restoredFilters);
     }, [sprites]);
 
     return {

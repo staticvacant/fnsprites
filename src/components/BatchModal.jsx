@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { getCharName, getFamilyKey, getFamilyKeys } from '../query.js';
+import { getCharNameMap, getFamilyKey, getFamilyKeys, resolveCharName } from '../query.js';
 import { ModalDialog, closeEnclosingDialog } from './ModalDialog.jsx';
 
 const SCOPE_OPTIONS = [
@@ -54,16 +54,15 @@ export default function BatchModal({
     onApply,
     onClose,
 }) {
-    const families = useMemo(
-        () =>
-            getFamilyKeys(scopeSprites)
-                .map(key => ({
-                    value: key,
-                    label: getCharName(key, scopeSprites),
-                }))
-                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR')),
-        [scopeSprites]
-    );
+    const families = useMemo(() => {
+        const charNameMap = getCharNameMap(scopeSprites);
+        return getFamilyKeys(scopeSprites)
+            .map(key => ({
+                value: key,
+                label: resolveCharName(charNameMap, key),
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
+    }, [scopeSprites]);
 
     const [scope, setScope] = useState('filter');
     const [selectedSeason, setSelectedSeason] = useState(() =>

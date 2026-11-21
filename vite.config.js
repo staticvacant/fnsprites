@@ -3,9 +3,44 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+/** @returns {import('vite').Plugin} */
+function preloadPrimaryFontPlugin() {
+    return {
+        name: 'preload-primary-roboto-font',
+        transformIndexHtml: {
+            order: 'post',
+            handler(html, ctx) {
+                const bundle = ctx.bundle;
+                if (!bundle) return html;
+                const fontFile = Object.keys(bundle).find(file =>
+                    /(?:^|\/)roboto-latin-[^/]+\.woff2$/i.test(file)
+                );
+                if (!fontFile) return html;
+                return {
+                    html,
+                    tags: [
+                        {
+                            tag: 'link',
+                            attrs: {
+                                rel: 'preload',
+                                as: 'font',
+                                type: 'font/woff2',
+                                href: `./${fontFile}`,
+                                crossorigin: true,
+                            },
+                            injectTo: 'head',
+                        },
+                    ],
+                };
+            },
+        },
+    };
+}
+
 export default defineConfig({
     plugins: [
         react(),
+        preloadPrimaryFontPlugin(),
         VitePWA({
             registerType: 'autoUpdate',
             workbox: {
@@ -51,6 +86,18 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
+        rolldownOptions: {
+            output: {
+                codeSplitting: {
+                    groups: [
+                        {
+                            name: 'react-vendor',
+                            test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                        },
+                    ],
+                },
+            },
+        },
     },
     test: {
         environment: 'node',

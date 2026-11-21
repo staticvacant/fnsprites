@@ -473,6 +473,50 @@ describe('Fluxo ponta a ponta ?c= (compartilhar, somente leitura e sair)', () =>
             container.querySelector(`.card[data-id="${LEGACY_SHARE_ORDER[2]}"].obtained`)
         ).not.toBeNull();
     });
+
+    it('inicia viewMode (?c=) com filtros limpos em memória sem sobrescrever filtros salvos no localStorage', async () => {
+        localStorage.setItem(KEYS.obtained, JSON.stringify(['fire_basic']));
+        localStorage.setItem(KEYS.theme, '__new__');
+        localStorage.setItem(KEYS.season, 'C7T5');
+        localStorage.setItem(KEYS.status, 'missing');
+        localStorage.setItem(KEYS.search, 'fogo');
+
+        const legacyCode = `${encodeBits('101')}~${encodeBits('1')}`;
+        window.history.replaceState({}, '', `/?c=${legacyCode}`);
+        const { container } = render(createElement(CatalogPage));
+
+        await waitFor(() => {
+            expect(container.querySelectorAll('.card[data-id]').length).toBe(2);
+        });
+
+        const searchInput = /** @type {HTMLInputElement} */ (
+            container.querySelector('#searchInput')
+        );
+        expect(searchInput.value).toBe('');
+
+        // Filtrar em memória dentro do viewMode não altera o localStorage do visitante
+        fireEvent.change(searchInput, { target: { value: 'inexistente_xyz' } });
+        window.dispatchEvent(new Event('pagehide'));
+        expect(localStorage.getItem(KEYS.search)).toBe('fogo');
+        expect(localStorage.getItem(KEYS.theme)).toBe('__new__');
+        expect(localStorage.getItem(KEYS.season)).toBe('C7T5');
+        expect(localStorage.getItem(KEYS.status)).toBe('missing');
+
+        // Ao sair do viewMode, restaura coleção e filtros salvos localmente
+        const exitLink = /** @type {HTMLElement} */ (container.querySelector('#viewBanner a'));
+        fireEvent.click(exitLink);
+
+        await waitFor(() => {
+            expect(container.querySelector('#viewBanner')).toBeNull();
+            expect(
+                /** @type {HTMLInputElement} */ (container.querySelector('#searchInput')).value
+            ).toBe('fogo');
+        });
+        expect(localStorage.getItem(KEYS.search)).toBe('fogo');
+        expect(localStorage.getItem(KEYS.theme)).toBe('__new__');
+        expect(localStorage.getItem(KEYS.season)).toBe('C7T5');
+        expect(localStorage.getItem(KEYS.status)).toBe('missing');
+    });
 });
 
 describe('Ações em lote (BatchModal + Desfazer atômico)', () => {
