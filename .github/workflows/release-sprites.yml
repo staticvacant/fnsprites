@@ -15,6 +15,7 @@ on:
           - all-unreleased
           - ids
           - season
+          - clear-new
           - sync-offline-only
       ids:
         description: 'IDs dos elementais (usado no modo ids; aceita curinga: bush_*, *_tricktreat)'
@@ -38,6 +39,11 @@ on:
         description: 'Só lançar se sprites/<id>.webp existir'
         required: false
         default: true
+        type: boolean
+      keep_previous_new:
+        description: 'Manter destaque "Novo" de lançamentos anteriores'
+        required: false
+        default: false
         type: boolean
       sync_offline_assets:
         description: 'Baixar/atualizar fontes locais e auditar assets offline'
@@ -85,6 +91,7 @@ jobs:
           INPUT_SEASON: ${{ inputs.season }}
           INPUT_ACTION: ${{ inputs.action }}
           INPUT_REQUIRE_ASSET: ${{ inputs.require_asset }}
+          INPUT_KEEP_PREVIOUS_NEW: ${{ inputs.keep_previous_new }}
           INPUT_SYNC_OFFLINE: ${{ inputs.sync_offline_assets }}
           INPUT_DRY_RUN: ${{ inputs.dry_run }}
         run: |
@@ -94,6 +101,7 @@ jobs:
             echo "season=" >> "$GITHUB_OUTPUT"
             echo "action=release" >> "$GITHUB_OUTPUT"
             echo "require_asset=true" >> "$GITHUB_OUTPUT"
+            echo "keep_previous_new=false" >> "$GITHUB_OUTPUT"
             echo "sync_offline=true" >> "$GITHUB_OUTPUT"
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
             echo "is_draft=true" >> "$GITHUB_OUTPUT"
@@ -107,6 +115,7 @@ jobs:
             echo "season=$INPUT_SEASON" >> "$GITHUB_OUTPUT"
             echo "action=${INPUT_ACTION:-release}" >> "$GITHUB_OUTPUT"
             echo "require_asset=${INPUT_REQUIRE_ASSET:-true}" >> "$GITHUB_OUTPUT"
+            echo "keep_previous_new=${INPUT_KEEP_PREVIOUS_NEW:-false}" >> "$GITHUB_OUTPUT"
             echo "sync_offline=${INPUT_SYNC_OFFLINE:-true}" >> "$GITHUB_OUTPUT"
             echo "dry_run=${INPUT_DRY_RUN:-false}" >> "$GITHUB_OUTPUT"
             echo "is_draft=false" >> "$GITHUB_OUTPUT"
@@ -126,6 +135,7 @@ jobs:
           SEASON: ${{ steps.params.outputs.season }}
           ACTION: ${{ steps.params.outputs.action }}
           REQUIRE_ASSET: ${{ steps.params.outputs.require_asset }}
+          KEEP_PREVIOUS_NEW: ${{ steps.params.outputs.keep_previous_new }}
           DRY_RUN: ${{ steps.params.outputs.dry_run }}
         run: |
           ARGS=(--mode "$MODE" --action "$ACTION")
@@ -137,6 +147,9 @@ jobs:
           fi
           if [ "$REQUIRE_ASSET" = "true" ]; then
             ARGS+=(--require-asset)
+          fi
+          if [ "$KEEP_PREVIOUS_NEW" = "true" ]; then
+            ARGS+=(--keep-previous-new)
           fi
           if [ "$DRY_RUN" = "true" ]; then
             ARGS+=(--dry-run)
@@ -159,10 +172,13 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           CHANGED_COUNT: ${{ steps.update.outputs.changed_count || '0' }}
           CHANGED_IDS: ${{ steps.update.outputs.changed_ids || '' }}
+          MARKED_NEW_COUNT: ${{ steps.update.outputs.marked_new_count || '0' }}
+          CLEARED_NEW_COUNT: ${{ steps.update.outputs.cleared_new_count || '0' }}
           SKIPPED_IDS: ${{ steps.update.outputs.skipped_ids || '' }}
           FONTS_CHANGED: ${{ steps.offline.outputs.fonts_changed || 'false' }}
           PRECACHE_COUNT: ${{ steps.validate.outputs.precache_count || '0' }}
           PRECACHED_WEBPS: ${{ steps.validate.outputs.precached_webps || '0' }}
+          MODE: ${{ steps.params.outputs.mode }}
           ACTION: ${{ steps.params.outputs.action }}
         run: |
           if [ "$CHANGED_COUNT" != "0" ] && [ "$FONTS_CHANGED" = "true" ]; then
@@ -177,6 +193,8 @@ jobs:
             else
               TITLE="chore: marcar $CHANGED_COUNT elemental(is) como não lançado(s)"
             fi
+          elif [ "$MODE" = "clear-new" ] && [ "$CLEARED_NEW_COUNT" != "0" ]; then
+            TITLE="chore: remover selo Novo de $CLEARED_NEW_COUNT elemental(is)"
           else
             TITLE="chore: atualizar assets e pré-cache offline PWA"
           fi
@@ -189,6 +207,12 @@ jobs:
               echo "- **Elementais alterados (${CHANGED_COUNT}):** \`${CHANGED_IDS//,/\`, \`}\`"
             else
               echo "- **Elementais alterados:** nenhum"
+            fi
+            if [ "$MARKED_NEW_COUNT" != "0" ]; then
+              echo "- **Marcados como \"Novo\":** ${MARKED_NEW_COUNT}"
+            fi
+            if [ "$CLEARED_NEW_COUNT" != "0" ]; then
+              echo "- **Selo \"Novo\" removido de anteriores:** ${CLEARED_NEW_COUNT}"
             fi
             if [ -n "$SKIPPED_IDS" ]; then
               echo "- **Ignorados sem imagem \`.webp\`:** \`${SKIPPED_IDS//,/\`, \`}\`"

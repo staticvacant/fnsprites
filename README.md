@@ -64,14 +64,17 @@ Modo linha de comando:
 
 ### Liberar elementais e atualizar assets offline (`scripts/release-sprites.js` e `scripts/download-offline-assets.js`)
 
-Utilizados pelo workflow [release-sprites.yml](./.github/workflows/release-sprites.yml) (agendamento periódico + disparo manual com abertura automática de Pull Request) para liberar `unreleased` em `src/data/sprites-data.js` e garantir os assets offline no build PWA:
+Utilizados pelo workflow [release-sprites.yml](./.github/workflows/release-sprites.yml) (agendamento periódico + disparo manual com abertura automática de Pull Request) para liberar `unreleased` e gerenciar o selo `isNew: true` ("NOVO") em `src/data/sprites-data.js`, além de garantir os assets offline no build PWA:
 
 ```bash
-# Lançar todos os elementais não lançados que já possuam .webp em sprites/
+# Lançar todos os elementais não lançados que já possuam .webp em sprites/ (marca isNew: true automaticamente)
 node scripts/release-sprites.js --mode all-unreleased --require-asset --dry-run
 
-# Lançar IDs ou padrões específicos
-node scripts/release-sprites.js --ids="id1,id2,prefix_*" --action=release --dry-run
+# Lançar IDs ou padrões específicos mantendo selos "NOVO" de lançamentos anteriores
+node scripts/release-sprites.js --ids="id1,id2,prefix_*" --action=release --keep-previous-new --dry-run
+
+# Remover selos isNew quando não houver mais adições recentes para destacar
+node scripts/release-sprites.js --mode clear-new --dry-run
 
 # Baixar/atualizar fontes locais Roboto e validar sprites/manifesto offline
 node scripts/download-offline-assets.js --sync-fonts --verify

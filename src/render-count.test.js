@@ -355,4 +355,37 @@ describe('Otimizações de renderização, carregamento e acessibilidade', () =>
         unmount();
         expect(listeners.size).toBe(0);
     });
+
+    it('exibe card-badge new-badge "NOVO" para novas adições e cede lugar a COLETADO / DOMINADO', async () => {
+        const { container } = render(createElement(CatalogPage));
+        const searchInput = mustQuery(container, '#searchInput');
+        fireEvent.change(searchInput, { target: { value: 'Ponto Zé' } });
+
+        await waitFor(() => {
+            expect(container.querySelector('.card[data-id="zee_basic"]')).not.toBeNull();
+        });
+
+        const card = mustQuery(container, '.card[data-id="zee_basic"]');
+        const primaryBtn = mustQuery(card, '.card-primary');
+
+        // Estado inicial novo e não coletado
+        expect(mustQuery(card, '.card-badge.new-badge').textContent).toBe('NOVO');
+        expect(primaryBtn.getAttribute('aria-label')).toContain('Não coletado (Novo)');
+
+        // Ao clicar para coletar, cede lugar a COLETADO
+        fireEvent.click(primaryBtn);
+        expect(card.querySelector('.card-badge.new-badge')).toBeNull();
+        expect(mustQuery(card, '.card-badge.collected').textContent).toBe('COLETADO');
+
+        // Ao dominar pela coroa, exibe DOMINADO
+        fireEvent.click(mustQuery(card, '.card-crown'));
+        expect(card.querySelector('.card-badge.new-badge')).toBeNull();
+        expect(mustQuery(card, '.card-badge.mastered-badge').textContent).toBe('DOMINADO');
+
+        // Ao desmarcar domínio e coleção, volta a exibir NOVO
+        fireEvent.click(primaryBtn);
+        expect(mustQuery(card, '.card-badge.collected').textContent).toBe('COLETADO');
+        fireEvent.click(primaryBtn);
+        expect(mustQuery(card, '.card-badge.new-badge').textContent).toBe('NOVO');
+    });
 });

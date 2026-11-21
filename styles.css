@@ -51,6 +51,7 @@
     --missing: #e57373;
     --unmastered: #4fc3f7;
     --unreleased-color: #ef4444;
+    --new-badge-color: #00838f;
 
     /* Layout & Component Specs */
     --gap: 12px;
@@ -1466,7 +1467,7 @@ body.low-fidelity dialog.modal-popup::backdrop {
     flex-shrink: 0;
 }
 
-/* Top Header Banner (DOMINADO / COLETADO) */
+/* Top Header Banner (DOMINADO / COLETADO / NOVO / NÃO LANÇADO) */
 .card-badge {
     position: absolute;
     top: 0;
@@ -1497,6 +1498,11 @@ body.low-fidelity dialog.modal-popup::backdrop {
 
 .card-badge.unreleased-badge {
     background: var(--unreleased-color);
+    color: #ffffff;
+}
+
+.card-badge.new-badge {
+    background: var(--new-badge-color);
     color: #ffffff;
 }
 

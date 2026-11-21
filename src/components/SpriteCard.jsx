@@ -24,7 +24,7 @@ function getSpriteStaticMeta(sprite) {
         baseClassName: baseClasses.join(' '),
         cardStyle: getCardStyleVars(sprite.rarity, sprite.theme),
         imgSrc: getSpriteImageUrl(sprite.id),
-        collectLabel: `${displayName} - ${sprite.unreleased ? 'Não lançado' : 'Não coletado'} (clique para coletar)`,
+        collectLabel: `${displayName} - ${sprite.unreleased ? 'Não lançado' : sprite.isNew ? 'Não coletado (Novo)' : 'Não coletado'} (clique para coletar)`,
         removeLabel: `${displayName} - Coletado (clique para remover da coleção)`,
         masteredCardLabel: `${displayName} - Dominado (clique para deixar apenas coletado)`,
         unmasterLabel: `Remover dominação de ${displayName}`,
@@ -45,7 +45,7 @@ function CrownIcon() {
 export const SpriteCard = memo(
     /**
      * @param {{
-     *   sprite: { id: string, name?: string, theme?: string, rarity?: string, unreleased?: boolean, season?: string },
+     *   sprite: { id: string, name?: string, theme?: string, rarity?: string, unreleased?: boolean, isNew?: boolean, season?: string },
      *   obtained: boolean,
      *   mastered: boolean,
      *   viewMode?: boolean,
@@ -150,6 +150,13 @@ export const SpriteCard = memo(
                     aria-hidden={!viewMode ? 'true' : undefined}
                 >
                     COLETADO
+                </div>
+            ) : sprite.isNew ? (
+                <div
+                    className="card-badge new-badge"
+                    aria-hidden={!viewMode ? 'true' : undefined}
+                >
+                    NOVO
                 </div>
             ) : null}
 

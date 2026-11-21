@@ -1,7 +1,7 @@
 {
   "name": "fnpituchinhubr",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Rastreador de Pituchinhus do Fortnite (React + Vite)",
   "type": "module",
   "scripts": {

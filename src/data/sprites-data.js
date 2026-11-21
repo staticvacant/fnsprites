@@ -396,20 +396,20 @@ export const baseSprites = [
 
     { id: "feedjet_basic", name: "Caracol Telepático", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
 
-    { id: "squiplash_basic", name: "Mô Lusco", theme: "Básico", rarity: "Épico", unreleased: false, season: "C7T5" },
-    { id: "squiplash_cursed", name: "Mô Lusco Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "squiplash_jeweled", name: "Mô Lusco Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "squiplash_gold", name: "Mô Lusco Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "squiplash_basic", name: "Mô Lusco", theme: "Básico", rarity: "Épico", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "squiplash_cursed", name: "Mô Lusco Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "squiplash_jeweled", name: "Mô Lusco Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "squiplash_gold", name: "Mô Lusco Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
 
-    { id: "whitetiger_basic", name: "Oscar II", theme: "Básico", rarity: "Lendário", unreleased: false, season: "C7T5" },
-    { id: "whitetiger_cursed", name: "Oscar II Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "whitetiger_jeweled", name: "Oscar II Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "whitetiger_gold", name: "Oscar II Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "whitetiger_basic", name: "Oscar II", theme: "Básico", rarity: "Lendário", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "whitetiger_cursed", name: "Oscar II Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "whitetiger_jeweled", name: "Oscar II Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "whitetiger_gold", name: "Oscar II Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
 
-    { id: "minimiku_basic", name: "Mini Miku", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
-    { id: "minimiku_cursed", name: "Mini Miku Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "minimiku_jeweled", name: "Mini Miku Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, season: "C7T5" },
-    { id: "minimiku_gold", name: "Mini Miku Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, season: "C7T5" },
+    { id: "minimiku_basic", name: "Mini Miku", theme: "Básico", rarity: "Mítico", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "minimiku_cursed", name: "Mini Miku Amaldiçoado", theme: "Amaldiçoado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "minimiku_jeweled", name: "Mini Miku Valioso", theme: "Valioso", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
+    { id: "minimiku_gold", name: "Mini Miku Dourado", theme: "Dourado", rarity: "Especial", unreleased: false, isNew: true, season: "C7T5" },
 
-    { id: "zee_basic", name: "Ponto Zé", theme: "Básico", rarity: "Mítico", unreleased: false, season: "C7T5" },
+    { id: "zee_basic", name: "Ponto Zé", theme: "Básico", rarity: "Mítico", unreleased: false, isNew: true, season: "C7T5" },
 ];

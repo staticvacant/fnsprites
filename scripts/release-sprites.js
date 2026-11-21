@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
  * Lança (ou oculta) elementais em src/data/sprites-data.js com suporte a modos manuais e automáticos.
+ * Ao lançar novos elementais, marca automaticamente `isNew: true` nos recém-lançados
+ * (e remove `isNew` dos lançamentos anteriores, salvo `--keep-previous-new`).
  *
  * Uso:
  *   node scripts/release-sprites.js --ids "bush_basic, jonesy_*" [--action release|unrelease] [--require-asset] [--dry-run]
  *   node scripts/release-sprites.js --mode all-unreleased [--season C7T5] [--require-asset] [--dry-run]
  *   node scripts/release-sprites.js --mode season --season C7T5 [--action release] [--require-asset] [--dry-run]
+ *   node scripts/release-sprites.js --mode clear-new [--season C7T5] [--dry-run]
  *
  * - Suporta curinga "*" (ex.: "bush_*", "*_tricktreat").
- * - Edita apenas o valor de `unreleased`, preservando a formatação do arquivo.
+ * - Edita `unreleased` e `isNew` preservando a formatação de linha do arquivo.
  */
 import fs from 'fs';
 import path from 'path';
@@ -21,7 +24,7 @@ const DEFAULT_DATA_FILE = path.join(ROOT_DIR, 'src', 'data', 'sprites-data.js');
 const DEFAULT_SPRITES_DIR = path.join(ROOT_DIR, 'sprites');
 
 const VALID_ACTIONS = new Set(['release', 'unrelease']);
-const VALID_MODES = new Set(['ids', 'all-unreleased', 'season', 'none']);
+const VALID_MODES = new Set(['ids', 'all-unreleased', 'season', 'clear-new', 'none']);
 
 export function parseArgs(argv) {
     const args = {
@@ -30,6 +33,8 @@ export function parseArgs(argv) {
         season: '',
         action: 'release',
         requireAsset: false,
+        markNew: /** @type {boolean | undefined} */ (undefined),
+        keepPreviousNew: false,
         dryRun: false,
         dataFile: DEFAULT_DATA_FILE,
         spritesDir: DEFAULT_SPRITES_DIR,
@@ -58,6 +63,22 @@ export function parseArgs(argv) {
             args.requireAsset = false;
             continue;
         }
+        if (raw === '--mark-new') {
+            args.markNew = true;
+            continue;
+        }
+        if (raw === '--no-mark-new') {
+            args.markNew = false;
+            continue;
+        }
+        if (raw === '--keep-previous-new') {
+            args.keepPreviousNew = true;
+            continue;
+        }
+        if (raw === '--clear-previous-new') {
+            args.keepPreviousNew = false;
+            continue;
+        }
         if (raw === '--dry-run') {
             args.dryRun = true;
             continue;
@@ -81,6 +102,10 @@ export function parseArgs(argv) {
         if (args.ids.trim()) args.mode = 'ids';
         else if (args.season) args.mode = 'season';
         else args.mode = 'ids';
+    }
+
+    if (args.markNew === undefined) {
+        args.markNew = args.action === 'release';
     }
 
     return args;
@@ -119,12 +144,31 @@ export function extractSpriteLineInfo(line) {
     if (!currentMatch) return null;
 
     const seasonMatch = line.match(/\bseason\s*:\s*["']([^"']+)["']/);
+    const isNewMatch = line.match(/\bisNew\s*:\s*(true|false)/);
     return {
         primaryId: lineIds[0],
         lineIds,
         current: currentMatch[1],
+        isNew: isNewMatch ? isNewMatch[1] === 'true' : false,
+        hasIsNewProp: Boolean(isNewMatch),
         season: seasonMatch ? seasonMatch[1] : '',
     };
+}
+
+export function updateIsNewOnLine(line, shouldBeNew) {
+    if (shouldBeNew) {
+        if (/\bisNew\s*:\s*(true|false)/.test(line)) {
+            return line.replace(/\bisNew\s*:\s*(true|false)/, 'isNew: true');
+        }
+        if (/unreleased\s*:\s*(true|false)/.test(line)) {
+            return line.replace(/(unreleased\s*:\s*(?:true|false))/, '$1, isNew: true');
+        }
+        return line;
+    }
+
+    return line
+        .replace(/,\s*isNew\s*:\s*(true|false)/g, '')
+        .replace(/\bisNew\s*:\s*(true|false)\s*,\s*/g, '');
 }
 
 function defaultHasAsset(spriteId, spritesDir) {
@@ -146,6 +190,8 @@ export function planSpriteReleases(sourceText, options = {}) {
         season = '',
         action = 'release',
         requireAsset = false,
+        markNew = action === 'release',
+        keepPreviousNew = false,
         spritesDir = DEFAULT_SPRITES_DIR,
         hasAssetFn = id => defaultHasAsset(id, spritesDir),
     } = options;
@@ -154,7 +200,7 @@ export function planSpriteReleases(sourceText, options = {}) {
         throw new Error(`Ação inválida: "${action}". Use "release" ou "unrelease".`);
     }
     if (!VALID_MODES.has(mode)) {
-        throw new Error(`Modo inválido: "${mode}". Use "ids", "all-unreleased", "season" ou "none".`);
+        throw new Error(`Modo inválido: "${mode}". Use "ids", "all-unreleased", "season", "clear-new" ou "none".`);
     }
     if (mode === 'season' && !season) {
         throw new Error('Informe --season ao usar --mode season.');
@@ -172,12 +218,15 @@ export function planSpriteReleases(sourceText, options = {}) {
     const changed = [];
     const unchanged = [];
     const skippedMissingAsset = [];
+    const markedNew = [];
+    const clearedNew = [];
     const duplicateIdWarnings = [];
     let pendingUnreleasedCount = 0;
 
-    const updatedLines = lines.map(line => {
+    // Passagem 1: calcula alterações de `unreleased` e valida seleção
+    const entries = lines.map(line => {
         const info = extractSpriteLineInfo(line);
-        if (!info) return line;
+        if (!info) return { line, info: null, nextLine: line, selected: false, didChangeUnreleased: false };
 
         if (info.lineIds.length > 1) {
             duplicateIdWarnings.push({ primaryId: info.primaryId, lineIds: info.lineIds });
@@ -187,8 +236,8 @@ export function planSpriteReleases(sourceText, options = {}) {
             pendingUnreleasedCount++;
         }
 
-        if (mode === 'none') {
-            return line;
+        if (mode === 'none' || mode === 'clear-new') {
+            return { line, info, nextLine: line, selected: false, didChangeUnreleased: false };
         }
 
         const seasonMatches = !season || info.season === season;
@@ -206,16 +255,18 @@ export function planSpriteReleases(sourceText, options = {}) {
             selected = seasonMatches;
         }
 
-        if (!selected) return line;
+        if (!selected) {
+            return { line, info, nextLine: line, selected: false, didChangeUnreleased: false };
+        }
 
         if (info.current === targetValue) {
             unchanged.push(info.primaryId);
-            return line;
+            return { line, info, nextLine: line, selected: true, didChangeUnreleased: false };
         }
 
         if (action === 'release' && requireAsset && !hasAssetFn(info.primaryId)) {
             skippedMissingAsset.push(info.primaryId);
-            return line;
+            return { line, info, nextLine: line, selected: false, didChangeUnreleased: false };
         }
 
         changed.push(info.primaryId);
@@ -224,7 +275,47 @@ export function planSpriteReleases(sourceText, options = {}) {
         } else {
             pendingUnreleasedCount++;
         }
-        return line.replace(/unreleased\s*:\s*(true|false)/, `unreleased: ${targetValue}`);
+
+        const nextLine = line.replace(/unreleased\s*:\s*(true|false)/, `unreleased: ${targetValue}`);
+        return { line, info, nextLine, selected: true, didChangeUnreleased: true };
+    });
+
+    // Passagem 2: aplica ou limpa `isNew` conforme ação/modo
+    const shouldClearPreviousNew =
+        action === 'release' && markNew && !keepPreviousNew && changed.length > 0;
+
+    const updatedLines = entries.map(entry => {
+        if (!entry.info) return entry.nextLine;
+        const { info } = entry;
+
+        if (mode === 'clear-new') {
+            const matchesScope = !season || info.season === season;
+            const matchesPattern =
+                patterns.length === 0 || matchers.some(m => info.lineIds.some(id => m.regex.test(id)));
+            if (matchesScope && matchesPattern && info.hasIsNewProp) {
+                clearedNew.push(info.primaryId);
+                return updateIsNewOnLine(entry.nextLine, false);
+            }
+            return entry.nextLine;
+        }
+
+        if (action === 'unrelease' && entry.selected && info.hasIsNewProp) {
+            clearedNew.push(info.primaryId);
+            return updateIsNewOnLine(entry.nextLine, false);
+        }
+
+        if (action === 'release') {
+            if (entry.didChangeUnreleased && markNew) {
+                markedNew.push(info.primaryId);
+                return updateIsNewOnLine(entry.nextLine, true);
+            }
+            if (!entry.didChangeUnreleased && shouldClearPreviousNew && info.hasIsNewProp) {
+                clearedNew.push(info.primaryId);
+                return updateIsNewOnLine(entry.nextLine, false);
+            }
+        }
+
+        return entry.nextLine;
     });
 
     const notFound = mode === 'ids' ? matchers.filter(m => m.hits === 0).map(m => m.pattern) : [];
@@ -234,6 +325,8 @@ export function planSpriteReleases(sourceText, options = {}) {
         changed,
         unchanged,
         skippedMissingAsset,
+        markedNew,
+        clearedNew,
         notFound,
         duplicateIdWarnings,
         pendingUnreleasedCount,
@@ -244,7 +337,7 @@ function main() {
     const args = parseArgs(process.argv.slice(2));
     if (args.help) {
         console.log(
-            'Uso: node scripts/release-sprites.js [--mode ids|all-unreleased|season|none] [--ids "id1,id2,prefix_*"] [--season C7T5] [--action release|unrelease] [--require-asset] [--dry-run]'
+            'Uso: node scripts/release-sprites.js [--mode ids|all-unreleased|season|clear-new|none] [--ids "id1,id2,prefix_*"] [--season C7T5] [--action release|unrelease] [--require-asset] [--keep-previous-new] [--no-mark-new] [--dry-run]'
         );
         process.exit(0);
     }
@@ -263,6 +356,12 @@ function main() {
     console.log(`Modo: ${args.mode} | Ação: ${args.action}${args.dryRun ? ' (dry-run)' : ''}`);
     if (args.season) console.log(`Temporada filtrada: ${args.season}`);
     console.log(`Alterados (${result.changed.length}): ${result.changed.join(', ') || '-'}`);
+    if (result.markedNew.length) {
+        console.log(`Marcados como NOVO (${result.markedNew.length}): ${result.markedNew.join(', ')}`);
+    }
+    if (result.clearedNew.length) {
+        console.log(`Selo NOVO removido (${result.clearedNew.length}): ${result.clearedNew.join(', ')}`);
+    }
     console.log(`Já estavam no estado desejado (${result.unchanged.length}): ${result.unchanged.join(', ') || '-'}`);
     if (result.skippedMissingAsset.length) {
         console.log(
@@ -281,6 +380,12 @@ function main() {
         `### ✅ ${result.changed.length} sprite(s) ${verb}`,
         result.changed.length ? result.changed.map(id => `- \`${id}\``).join('\n') : '_Nenhum_',
         '',
+        result.markedNew.length
+            ? `### 🆕 Marcados como "Novo" (${result.markedNew.length})\n${result.markedNew.map(id => `- \`${id}\``).join('\n')}\n`
+            : '',
+        result.clearedNew.length
+            ? `### 🧹 Selo "Novo" removido de anteriores (${result.clearedNew.length})\n${result.clearedNew.map(id => `- \`${id}\``).join('\n')}\n`
+            : '',
         result.skippedMissingAsset.length
             ? `### ⚠️ Ignorados sem arquivo \`.webp\` (${result.skippedMissingAsset.length})\n${result.skippedMissingAsset.map(id => `- \`${id}\``).join('\n')}\n`
             : '',
@@ -294,6 +399,8 @@ function main() {
 
     setOutput('changed_count', String(result.changed.length));
     setOutput('changed_ids', result.changed.join(','));
+    setOutput('marked_new_count', String(result.markedNew.length));
+    setOutput('cleared_new_count', String(result.clearedNew.length));
     setOutput('skipped_count', String(result.skippedMissingAsset.length));
     setOutput('skipped_ids', result.skippedMissingAsset.join(','));
     setOutput('pending_unreleased_count', String(result.pendingUnreleasedCount));
@@ -303,7 +410,7 @@ function main() {
         process.exit(1);
     }
 
-    if (!args.dryRun && result.changed.length) {
+    if (!args.dryRun && (result.changed.length > 0 || result.markedNew.length > 0 || result.clearedNew.length > 0)) {
         fs.writeFileSync(args.dataFile, result.updatedText, 'utf8');
         console.log(`Arquivo atualizado: ${path.relative(process.cwd(), args.dataFile)}`);
     }

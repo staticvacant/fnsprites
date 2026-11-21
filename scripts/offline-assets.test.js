@@ -17,7 +17,7 @@ const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 describe('Automação de lançamento (scripts/release-sprites.js)', () => {
     const sampleCatalog = [
         'export const baseSprites = [',
-        '    { id: "water_basic", name: "Água", theme: "Básico", rarity: "Raro", unreleased: false, season: "C7T4" },',
+        '    { id: "water_basic", name: "Água", theme: "Básico", rarity: "Raro", unreleased: false, isNew: true, season: "C7T4" },',
         '    { id: "squiplash_basic", name: "Mô Lusco", theme: "Básico", rarity: "Épico", unreleased: true, season: "C7T5" },',
         '    { id: "squiplash_gold", name: "Mô Lusco Dourado", theme: "Dourado", rarity: "Especial", unreleased: true, season: "C7T5" },',
         '    { id: "missing_img", name: "Sem Imagem", theme: "Básico", rarity: "Raro", unreleased: true, season: "C7T5" },',
@@ -35,10 +35,11 @@ describe('Automação de lançamento (scripts/release-sprites.js)', () => {
         expect(parsed.ids).toBe('water_basic,squiplash_*');
         expect(parsed.action).toBe('release');
         expect(parsed.requireAsset).toBe(true);
+        expect(parsed.markNew).toBe(true);
         expect(parsed.dryRun).toBe(true);
     });
 
-    it('planSpriteReleases no modo all-unreleased com requireAsset pula sprites sem .webp', () => {
+    it('planSpriteReleases no modo all-unreleased com requireAsset pula sprites sem .webp, marca isNew e limpa anteriores', () => {
         const result = planSpriteReleases(sampleCatalog, {
             mode: 'all-unreleased',
             action: 'release',
@@ -48,13 +49,44 @@ describe('Automação de lançamento (scripts/release-sprites.js)', () => {
 
         expect(result.changed).toEqual(['squiplash_basic', 'squiplash_gold']);
         expect(result.skippedMissingAsset).toEqual(['missing_img']);
+        expect(result.markedNew).toEqual(['squiplash_basic', 'squiplash_gold']);
+        expect(result.clearedNew).toEqual(['water_basic']);
         expect(result.pendingUnreleasedCount).toBe(1);
         expect(result.updatedText).toContain(
-            'id: "squiplash_basic", name: "Mô Lusco", theme: "Básico", rarity: "Épico", unreleased: false'
+            'id: "water_basic", name: "Água", theme: "Básico", rarity: "Raro", unreleased: false, season: "C7T4"'
         );
         expect(result.updatedText).toContain(
-            'id: "missing_img", name: "Sem Imagem", theme: "Básico", rarity: "Raro", unreleased: true'
+            'id: "squiplash_basic", name: "Mô Lusco", theme: "Básico", rarity: "Épico", unreleased: false, isNew: true, season: "C7T5"'
         );
+        expect(result.updatedText).toContain(
+            'id: "missing_img", name: "Sem Imagem", theme: "Básico", rarity: "Raro", unreleased: true, season: "C7T5"'
+        );
+    });
+
+    it('planSpriteReleases respeita keepPreviousNew, unrelease e modo clear-new', () => {
+        const kept = planSpriteReleases(sampleCatalog, {
+            mode: 'ids',
+            ids: 'squiplash_basic',
+            action: 'release',
+            keepPreviousNew: true,
+        });
+        expect(kept.markedNew).toEqual(['squiplash_basic']);
+        expect(kept.clearedNew).toEqual([]);
+        expect(kept.updatedText).toContain('id: "water_basic", name: "Água", theme: "Básico", rarity: "Raro", unreleased: false, isNew: true');
+
+        const unreleased = planSpriteReleases(sampleCatalog, {
+            mode: 'ids',
+            ids: 'water_basic',
+            action: 'unrelease',
+        });
+        expect(unreleased.changed).toEqual(['water_basic']);
+        expect(unreleased.clearedNew).toEqual(['water_basic']);
+        expect(unreleased.updatedText).toContain('id: "water_basic", name: "Água", theme: "Básico", rarity: "Raro", unreleased: true, season: "C7T4"');
+
+        const cleared = planSpriteReleases(sampleCatalog, { mode: 'clear-new' });
+        expect(cleared.changed).toEqual([]);
+        expect(cleared.clearedNew).toEqual(['water_basic']);
+        expect(cleared.updatedText).not.toContain('isNew');
     });
 
     it('planSpriteReleases no modo season filtra exatamente pela temporada alvo', () => {
