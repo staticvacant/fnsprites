@@ -1,5 +1,5 @@
 import { Fragment, memo, useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
-import { getUiThemeLabel } from '../query.js';
+import { getUiThemeLabel, NEW_THEME_FILTER } from '../query.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { M3FilterMenu } from './M3FilterMenu.jsx';
 import { SearchIcon, ExportIcon, ShareIcon, SettingsIcon, BatchIcon } from './ToolbarIcons.jsx';
@@ -39,6 +39,7 @@ export const FilterBar = memo(
      *     lightTheme: boolean,
      *   },
      *   activeThemes: string[],
+     *   showNewFilter?: boolean,
      *   activeSeasons?: string[],
      *   viewMode: boolean,
      *   onFilterChange: (key: string, value: string) => void,
@@ -58,6 +59,7 @@ export const FilterBar = memo(
     filters,
     settings,
     activeThemes,
+    showNewFilter = false,
     activeSeasons = EMPTY_SEASONS,
     viewMode,
     onFilterChange,
@@ -179,12 +181,13 @@ export const FilterBar = memo(
     const themeOptions = useMemo(
         () => [
             { value: 'all', label: 'Tipos' },
+            ...(showNewFilter ? [{ value: NEW_THEME_FILTER, label: 'Novos' }] : []),
             ...activeThemes.map(theme => ({
                 value: theme,
                 label: getUiThemeLabel(theme),
             })),
         ],
-        [activeThemes]
+        [activeThemes, showNewFilter]
     );
 
     const seasonOptions = useMemo(

@@ -49,6 +49,7 @@ export function CatalogPage() {
         settings,
         trackerState,
         activeThemes,
+        showNewFilter,
         activeSeasons,
         visibleSprites,
         progressStats,
@@ -412,6 +413,7 @@ export function CatalogPage() {
                     filters={filters}
                     settings={settings}
                     activeThemes={activeThemes}
+                    showNewFilter={showNewFilter}
                     activeSeasons={activeSeasons}
                     viewMode={viewMode}
                     onFilterChange={updateFilter}

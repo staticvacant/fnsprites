@@ -4,6 +4,8 @@ import {
     getSpriteIdSet,
     uniqueValidIds,
     getActiveThemes,
+    hasNewSprites,
+    NEW_THEME_FILTER,
     getActiveSeasons,
     getReleasedSprites,
     getCollectionCounts,
@@ -54,7 +56,10 @@ function getStoredCollection(sprites) {
 function getInitialFilters(sprites) {
     const themes = getActiveThemes(sprites);
     const storedTheme = localStorage.getItem(KEYS.theme) || 'all';
-    const theme = themes.includes(storedTheme) ? storedTheme : 'all';
+    const theme =
+        themes.includes(storedTheme) || (storedTheme === NEW_THEME_FILTER && hasNewSprites(sprites))
+            ? storedTheme
+            : 'all';
 
     const seasons = getActiveSeasons(sprites);
     const storedSeason = localStorage.getItem(KEYS.season) || 'all';
@@ -282,6 +287,7 @@ export function useTrackerState(sprites) {
     }, [settings.lightTheme]);
 
     const activeThemes = useMemo(() => getActiveThemes(sprites), [sprites]);
+    const showNewFilter = useMemo(() => hasNewSprites(sprites), [sprites]);
     const activeSeasons = useMemo(() => getActiveSeasons(sprites), [sprites]);
 
     // Estado consolidado compatível com as funções puras de query.js e view-export.js
@@ -514,6 +520,7 @@ export function useTrackerState(sprites) {
         settings,
         trackerState,
         activeThemes,
+        showNewFilter,
         activeSeasons,
         visibleSprites,
         progressStats,

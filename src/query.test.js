@@ -5,6 +5,8 @@ import {
     getReleasedSprites,
     getCollectionCounts,
     getActiveThemes,
+    hasNewSprites,
+    NEW_THEME_FILTER,
     getActiveSeasons,
     getExportThemeLabel,
     getTradeThemeLabel,
@@ -88,6 +90,19 @@ describe('filterSprites', () => {
     it('em modo somente leitura mostra apenas coletados', () => {
         const state = makeState({ viewMode: true, obtained: ['fire_basic'] });
         expect(filterSprites(sprites, state).map(s => s.id)).toEqual(['fire_basic']);
+    });
+
+    it('filtra apenas novos por NEW_THEME_FILTER e hasNewSprites ignora não lançados', () => {
+        const list = [
+            ...sprites.slice(0, 2),
+            { id: 'new_released', name: 'Novo', theme: 'Básico', rarity: 'Épico', unreleased: false, isNew: true, season: 'C7T5' },
+            { id: 'new_unreleased', name: 'Novo Oculto', theme: 'Básico', rarity: 'Raro', unreleased: true, isNew: true, season: 'C7T5' },
+        ];
+        expect(hasNewSprites(list)).toBe(true);
+        expect(hasNewSprites([list[0], list[3]])).toBe(false);
+
+        const state = makeState({ filters: { search: '', theme: NEW_THEME_FILTER, season: 'all', status: 'all' } });
+        expect(filterSprites(list, state).map(s => s.id)).toEqual(['new_released']);
     });
 });
 

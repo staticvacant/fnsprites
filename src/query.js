@@ -35,6 +35,12 @@ function buildCollatorRankMap(values) {
     return ranks;
 }
 
+export const NEW_THEME_FILTER = '__new__';
+
+export function hasNewSprites(sprites = []) {
+    return sprites.some(sprite => Boolean(sprite.isNew) && !sprite.unreleased);
+}
+
 export function getFamilyKey(sprite) {
     const idx = sprite.id.lastIndexOf('_');
     return idx === -1 ? sprite.id : sprite.id.slice(0, idx);
@@ -238,7 +244,10 @@ export function filterSprites(sprites, state) {
         if (state.viewMode && (!obtainedSet.has(sprite.id) || sprite.unreleased)) return false;
 
         const matchesSearch = !search || sprite.name.toLowerCase().includes(search);
-        const matchesTheme = state.filters.theme === 'all' || sprite.theme === state.filters.theme;
+        const themeFilter = state.filters.theme;
+        const matchesTheme =
+            themeFilter === 'all' ||
+            (themeFilter === NEW_THEME_FILTER ? Boolean(sprite.isNew) : sprite.theme === themeFilter);
         const matchesSeason = state.filters.season === 'all' || (sprite.season || 'none') === state.filters.season;
 
         let matchesStatus = true;

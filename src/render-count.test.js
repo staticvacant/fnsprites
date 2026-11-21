@@ -388,4 +388,24 @@ describe('Otimizações de renderização, carregamento e acessibilidade', () =>
         fireEvent.click(primaryBtn);
         expect(mustQuery(card, '.card-badge.new-badge').textContent).toBe('NOVO');
     });
+
+    it('filtra apenas os novos elementais ao selecionar "Novos" no filtro de Tipos', async () => {
+        const { container } = render(createElement(CatalogPage));
+        const trigger = mustQuery(container, '#themeFilterMenuTrigger');
+        fireEvent.click(trigger);
+
+        const newOption = Array.from(container.querySelectorAll('.m3-menu-item')).find(
+            el => el.textContent === 'Novos'
+        );
+        expect(newOption).toBeTruthy();
+        fireEvent.click(/** @type {HTMLElement} */ (newOption));
+
+        await waitFor(() => {
+            const visibleCards = container.querySelectorAll('.card[data-id]');
+            expect(visibleCards.length).toBe(13);
+            visibleCards.forEach(cardEl => {
+                expect(cardEl.querySelector('.card-badge.new-badge')?.textContent).toBe('NOVO');
+            });
+        });
+    });
 });
